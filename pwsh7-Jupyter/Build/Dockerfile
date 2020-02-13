@@ -4,41 +4,33 @@ USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
-    curl \
     wget \
     openssl \
     ssh \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Powershell Core & OMI
+# Powershell Core / OMI / .Net Core Runtime
 RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb \
  && dpkg -i packages-microsoft-prod.deb \
- && add-apt-repository universe \
  && rm packages-microsoft-prod.deb
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN add-apt-repository universe \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends apt-transport-https \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
     powershell-preview \
     omi \
+    dotnet-runtime-3.1 \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN ln -s /opt/microsoft/powershell/7-preview/pwsh /usr/bin/pwsh
+ && rm -rf /var/lib/apt/lists/* \
+ && ln -s /opt/microsoft/powershell/7-preview/pwsh /usr/bin/pwsh
 
 # Powershell DSC Core
 RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-926/dsc-1.1.1-926.ssl_110.x64.deb --no-check-certificate \
  && dpkg -i dsc-1.1.1-926.ssl_110.x64.deb \
  && rm dsc-1.1.1-926.ssl_110.x64.deb
-
-# .Net Core Runtime
-ENV DOTNET_VERSION 3.0.1
-RUN curl -SL --output dotnet.tar.gz https://dotnetcli.azureedge.net/dotnet/Runtime/$DOTNET_VERSION/dotnet-runtime-$DOTNET_VERSION-linux-x64.tar.gz \
- && dotnet_sha512='d84192fd20ff09e6bc00eca37c6e5d2c5025c7a0fd93644a1dc4e4f0fc7322689dd8ee7b331352c568b999a7ebcd909c0893abf455da354b23119334378615ca' \
- && echo "$dotnet_sha512 dotnet.tar.gz" | sha512sum -c - \
- && mkdir -p /usr/share/dotnet \
- && tar -zxf dotnet.tar.gz -C /usr/share/dotnet \
- && rm dotnet.tar.gz \
- && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
 # Configure SSH
 RUN ssh-keygen -A \
