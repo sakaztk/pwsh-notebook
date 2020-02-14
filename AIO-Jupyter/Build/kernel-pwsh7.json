@@ -1,0 +1,1 @@
+{"argv": ["/opt/conda/bin/python", "-m", "powershell_kernel", "-f", "{connection_file}"], "display_name": "PowerShell7", "env": {"powershell_command": "pwsh7"}, "language": "powershell7"}
