@@ -1,17 +1,15 @@
-# AIO-ServerCore
-![New](https://user-images.githubusercontent.com/20841864/74675308-9d3c4980-51f6-11ea-9191-a2ab664c853b.jpg)
-
-## Base Container
- [mcr.microsoft.com/windows/servercore:1909](https://hub.docker.com/_/microsoft-windows-servercore)
+# WinPython
+![New](https://user-images.githubusercontent.com/20841864/75626115-f00afd80-5c07-11ea-947c-a4db2e71b952.jpg)
 
 ## Installing
+- [WinPython](https://winpython.github.io/)
 - [PowerShell 6](https://github.com/PowerShell/PowerShell)
 - [PowerShell 7 Preview](https://github.com/PowerShell/PowerShell)
-- [.Net SDK](https://github.com/dotnet/sdk)
-- [.NET Interactive](https://github.com/dotnet/interactive)
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
 - [Jupyter notebook extensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)
+
+Refer to Definition.ps1 for installing version and path.
 
 ## Run the PowerShell from Terminal
 - Powershell 5

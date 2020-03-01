@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:1909-KB4528760
+FROM mcr.microsoft.com/windows/servercore:1909
 
 ARG pythonUri=https://www.python.org/ftp/python/3.7.6/python-3.7.6-amd64.exe
 

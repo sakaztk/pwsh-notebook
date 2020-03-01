@@ -17,9 +17,7 @@ RUN Install-PackageProvider Nuget -Force; \
 RUN Install-PackageProvider -Name ChocolateyGet -Force
 RUN @( \
     'python', \
-    'powershell-core', \
-    'powershell-preview', \
-    'dotnetcore-sdk' \
+    'powershell-preview' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
 
 #Jupyter
@@ -35,13 +33,7 @@ RUN pip install jupyter; \
     jupyter contrib nbextension install; \
     python -m powershell_kernel.install
 
-RUN dotnet tool install --global Microsoft.dotnet-interactive
-RUN $env:Path += ';C:\Users\ContainerAdministrator\.dotnet\tools'
-RUN dotnet interactive jupyter install
-
-RUN New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell6/ -ItemType Directory -Force; \
-    New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell7/ -ItemType Directory -Force
-COPY kernel-pwsh6.json C:\\Users\\ContainerAdministrator\\AppData\\Roaming\\jupyter\\kernels\\powershell6\\kernel.json
+RUN New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell7/ -ItemType Directory -Force
 COPY kernel-pwsh7.json C:\\Users\\ContainerAdministrator\\AppData\\Roaming\\jupyter\\kernels\\powershell7\\kernel.json
 RUN Copy-Item -Path 'C:\Program Files\PowerShell\7-preview\preview\pwsh-preview.cmd' -Destination 'C:\Program Files\PowerShell\7-preview\preview\pwsh7.cmd' -Force
 
