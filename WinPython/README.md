@@ -4,7 +4,7 @@
 ## Installing
 - [WinPython](https://winpython.github.io/)
 - [PowerShell 6](https://github.com/PowerShell/PowerShell)
-- [PowerShell 7 Preview](https://github.com/PowerShell/PowerShell)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell)
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
 - [Jupyter notebook extensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)
@@ -24,6 +24,6 @@ PS >
 ```
 - Powershell 7 Preview
 ```
-$ pwsh-preview
+$ pwsh7
 PS >
 ```

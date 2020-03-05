@@ -6,7 +6,7 @@
 
 ## Installing
 - [PowerShell 6](https://github.com/PowerShell/PowerShell)
-- [PowerShell 7 Preview](https://github.com/PowerShell/PowerShell)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell)
 - [.Net SDK](https://github.com/dotnet/sdk)
 - [.NET Interactive](https://github.com/dotnet/interactive)
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
@@ -26,6 +26,6 @@ PS >
 ```
 - Powershell 7 Preview
 ```
-$ pwsh-preview
+$ pwsh7
 PS >
 ```

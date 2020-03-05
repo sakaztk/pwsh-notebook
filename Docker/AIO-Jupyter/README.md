@@ -7,7 +7,7 @@
 
 ## Installing
 - [PowerShell 6](https://github.com/PowerShell/PowerShell)
-- [PowerShell 7 Preview](https://github.com/PowerShell/PowerShell)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell)
 - [PowerShell DSC for Linux](https://github.com/microsoft/PowerShell-DSC-for-Linux)
 - [Open Management Infrastructure](https://github.com/microsoft/omi)
 - [.Net SDK](https://github.com/dotnet/sdk)

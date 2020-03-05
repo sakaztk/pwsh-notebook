@@ -35,7 +35,7 @@ Remove-Item "$pwsh6Path\pwsh6.zip"
 Set-Content -Value "@`"$pwsh6Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh.cmd"
 Copy-Item -Path "$wpRoot\settings\kernels\powershell" -Destination "$wpRoot\settings\kernels\powershell6" -Recurse
 $fileContent = Get-Content $wpRoot\settings\kernels\powershell6\kernel.json -Raw
-$fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell6"'
+$fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 6"'
 $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"$($pwsh6Root -replace '\\','\\')\\pwsh.exe`""
 $filecontent | Set-Content "$wpRoot\settings\kernels\powershell6\kernel.json"
 
@@ -49,7 +49,7 @@ Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh-previ
 Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh7.cmd"
 Copy-Item -Path "$wpRoot\settings\kernels\powershell" -Destination "$wpRoot\settings\kernels\powershell7" -Recurse
 $fileContent = Get-Content "$wpRoot\settings\kernels\powershell7\kernel.json" -Raw
-$fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell7"'
+$fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
 $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"$($pwsh7Root -replace '\\','\\')\\pwsh.exe`""
 $filecontent | Set-Content "$wpRoot\settings\kernels\powershell7\kernel.json"
 

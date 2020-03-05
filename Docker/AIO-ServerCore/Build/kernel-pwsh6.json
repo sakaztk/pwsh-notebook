@@ -1,1 +1,1 @@
-{"argv": ["C:\\Python38\\python.exe", "-m", "powershell_kernel", "-f", "{connection_file}"], "display_name": "PowerShell6", "env": {"powershell_command": "pwsh"}, "language": "powershell6"}
+{"argv": ["C:\\Python38\\python.exe", "-m", "powershell_kernel", "-f", "{connection_file}"], "display_name": "PowerShell 6", "env": {"powershell_command": "pwsh"}, "language": "powershell6"}
