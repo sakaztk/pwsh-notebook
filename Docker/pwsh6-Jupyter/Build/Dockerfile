@@ -21,11 +21,16 @@ RUN add-apt-repository universe \
  && apt-get install -y --no-install-recommends apt-transport-https \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-    powershell \
     omi \
     dotnet-runtime-3.1 \
+    liblttng-ust0 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://github.com/PowerShell/PowerShell/releases/download/v6.2.4/powershell_6.2.4-1.ubuntu.18.04_amd64.deb \
+ && dpkg -i powershell_6.2.4-1.ubuntu.18.04_amd64.deb \
+ && apt-get install -f \
+ && rm powershell_6.2.4-1.ubuntu.18.04_amd64.deb
 
 # Powershell DSC Core
 RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-926/dsc-1.1.1-926.ssl_110.x64.deb --no-check-certificate \

@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 
 # WinPython
 New-Item -Path $wpPath -ItemType Directory -Force
-Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/2.2.20191222/Winpython$wpVer.exe" -OutFile "$wpPath\Winpython.exe"
+Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/$wpTag/Winpython$wpVer.exe" -OutFile "$wpPath\Winpython.exe"
 Start-Process -FilePath "$wpPath\Winpython.exe" -ArgumentList '-y' -wait
 Remove-Item "$wpPath\Winpython.exe"
 $wpRoot = Join-Path $wpPath "WPy$($wpVer -replace('\.|dot|cod|Ps2',''))"

@@ -14,11 +14,12 @@ RUN Install-PackageProvider Nuget -Force; \
     Update-Module -Name PowerShellGet -Force
 
 #ChocolateyGet
-RUN Install-PackageProvider -Name ChocolateyGet -Force
+RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
+    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
-    'python', \
-    'powershell-core' \
+    'python' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
+RUN Install-Package -Provider ChocolateyGet -Name powershell-core -RequiredVersion 6.2.4 -Force
 
 #Jupyter
 USER ContainerAdministrator

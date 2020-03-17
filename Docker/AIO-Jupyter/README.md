@@ -20,11 +20,11 @@
 ## Run the PowerShell from Terminal
 - Powershell 6
 ```
-$ pwsh
+$ pwsh6
 PS >
 ```
-- Powershell 7 Preview
+- Powershell 7
 ```
-$ pwsh7
+$ pwsh
 PS >
 ```

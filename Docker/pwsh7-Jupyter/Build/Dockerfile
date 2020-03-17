@@ -20,12 +20,11 @@ RUN add-apt-repository universe \
  && apt-get install -y --no-install-recommends apt-transport-https \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
-    powershell-preview \
+    powershell \
     omi \
     dotnet-runtime-3.1 \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/* \
- && ln -s /opt/microsoft/powershell/7-preview/pwsh /usr/bin/pwsh
+ && rm -rf /var/lib/apt/lists/*
 
 # Powershell DSC Core
 RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-926/dsc-1.1.1-926.ssl_110.x64.deb --no-check-certificate \

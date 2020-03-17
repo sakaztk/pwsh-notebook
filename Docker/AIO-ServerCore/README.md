@@ -21,11 +21,11 @@ PS >
 ```
 - Powershell 6
 ```
-$ pwsh
+$ pwsh6
 PS >
 ```
 - Powershell 7 Preview
 ```
-$ pwsh7
+$ pwsh
 PS >
 ```

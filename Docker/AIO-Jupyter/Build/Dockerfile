@@ -21,12 +21,15 @@ RUN add-apt-repository universe \
  && apt-get update \
  && apt-get install -y --no-install-recommends \
     powershell \
-    powershell-preview \
     omi \
     dotnet-sdk-3.1 \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/* \
- && ln -s /opt/microsoft/powershell/7-preview/pwsh /usr/bin/pwsh7
+ && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q https://github.com/PowerShell/PowerShell/releases/download/v6.2.4/powershell_6.2.4-1.ubuntu.18.04_amd64.deb \
+ && dpkg-deb -x powershell_6.2.4-1.ubuntu.18.04_amd64.deb / \
+ && ln -s /opt/microsoft/powershell/6/pwsh /usr/bin/pwsh6 \
+ && rm powershell_6.2.4-1.ubuntu.18.04_amd64.deb
 
 RUN dotnet tool install --global Microsoft.dotnet-interactive
 ENV PATH $PATH:~/.dotnet/tools
@@ -54,7 +57,7 @@ RUN fix-permissions /home/$NB_USER
 
 RUN mkdir -p /usr/local/bin/start-notebook.d
 COPY start.sh /usr/local/bin/start-notebook.d
-RUN mkdir -p /usr/local/share/jupyter/kernels/powershell7
-COPY kernel-pwsh7.json /usr/local/share/jupyter/kernels/powershell7/kernel.json
+RUN mkdir -p /usr/local/share/jupyter/kernels/powershell6
+COPY kernel-pwsh6.json /usr/local/share/jupyter/kernels/powershell6/kernel.json
 
 USER $NB_USER

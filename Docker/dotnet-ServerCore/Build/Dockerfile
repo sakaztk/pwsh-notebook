@@ -14,7 +14,8 @@ RUN Install-PackageProvider Nuget -Force; \
     Update-Module -Name PowerShellGet -Force
 
 #ChocolateyGet
-RUN Install-PackageProvider -Name ChocolateyGet -Force
+RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
+    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
     'python', \
     'dotnetcore-sdk' \

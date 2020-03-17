@@ -32,6 +32,4 @@ RUN pip install jupyter; \
     jupyter contrib nbextension install; \
     python -m powershell_kernel.install
 
-RUN Dism /online /Cleanup-Image /StartComponentCleanup /ResetBase
-
 EXPOSE 8888

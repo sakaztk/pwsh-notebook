@@ -14,10 +14,11 @@ RUN Install-PackageProvider Nuget -Force; \
     Update-Module -Name PowerShellGet -Force
 
 #ChocolateyGet
-RUN Install-PackageProvider -Name ChocolateyGet -Force
+RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
+    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
     'python', \
-    'powershell-preview' \
+    'powershell-core' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
 
 #Jupyter
@@ -35,6 +36,5 @@ RUN pip install jupyter; \
 
 RUN New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell7/ -ItemType Directory -Force
 COPY kernel-pwsh7.json C:\\Users\\ContainerAdministrator\\AppData\\Roaming\\jupyter\\kernels\\powershell7\\kernel.json
-RUN Copy-Item -Path 'C:\Program Files\PowerShell\7-preview\preview\pwsh-preview.cmd' -Destination 'C:\Program Files\PowerShell\7-preview\preview\pwsh7.cmd' -Force
 
 EXPOSE 8888
