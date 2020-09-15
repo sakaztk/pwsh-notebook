@@ -8,6 +8,24 @@ Start-Process -FilePath "$wpPath\Winpython.exe" -ArgumentList '-y' -wait
 Remove-Item "$wpPath\Winpython.exe"
 $wpRoot = Join-Path $wpPath "WPy$($wpVer -replace('\.|dot|cod|Ps2',''))"
 
+# Node.js
+New-Item -Path $nodePath -ItemType Directory -Force
+Invoke-WebRequest -Uri "https://nodejs.org/dist/v$nodeVer/node-v$nodeVer-win-x64.zip" -OutFile "$nodePath\node.zip"
+Expand-Archive -Path "$nodePath\node.zip" -DestinationPath $nodePath -Force
+Remove-Item "$nodePath\node.zip"
+. (join-path $nodePath "node-v$nodeVer-win-x64\nodevars.bat")
+$env:Path += (';' + (join-path $nodePath "node-v$nodeVer-win-x64"))
+
+$nodeEnvPath = join-path $nodePath "node-v$nodeVer-win-x64"
+@"
+set NODEPATH=$nodeEnvPath
+echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%NODEPATH%\;" >nul
+if %ERRORLEVEL% NEQ 0 (
+   set "PATH=%PATH%;%NODEPATH%\;"
+)
+
+"@ | Add-Content -Path "$wpRoot\scripts\env.bat"
+
 # Jupyter
 & "$wpRoot\scripts\env_for_icons.bat"
 & "$wpRoot\scripts\WinPython_PS_Prompt.ps1"

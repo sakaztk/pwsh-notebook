@@ -1,6 +1,8 @@
-$wpTag    = '2.3.20200530'
-$wpVer    = '64-3.8.3.0dot'
-$pwsh7Ver = '7.0.2-win-x64'
+$wpTag    = '3.0.20200808'
+$wpVer    = '64-3.8.5.0dot'
+$pwsh7Ver = '7.0.3-win-x64'
+$nodeVer  = '12.18.3'
 
-$wpPath    = 'J:\Softwares\WinPython'
-$pwsh7Path = 'J:\Softwares\pwsh7'
+$wpPath    = 'U:\Softwares\WinPython'
+$nodePath  = 'U:\Softwares\node'
+$pwsh7Path = 'U:\Softwares\pwsh7'
