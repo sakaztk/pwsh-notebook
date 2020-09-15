@@ -1,13 +1,5 @@
-FROM mcr.microsoft.com/windows/servercore:1909
-
-ARG pythonUri=https://www.python.org/ftp/python/3.7.6/python-3.7.6-amd64.exe
-
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 SHELL ["powershell", "-Command", "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue';"]
-
-#PowershellGet
-RUN Install-PackageProvider Nuget -Force; \
-    Install-Module -Name PowerShellGet -Force; \
-    Update-Module -Name PowerShellGet -Force
 
 #WinRM
 RUN Set-Item WSMan:\localhost\Client\TrustedHosts -Value '*' -Force
@@ -16,12 +8,22 @@ RUN Set-Item WSMan:\localhost\Client\TrustedHosts -Value '*' -Force
 RUN New-Item -Path 'HKLM:\SOFTWARE\Microsoft\Command Processor' -Force; \
     Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Command Processor' -Name AutoRun -Value '@chcp 65001>null'
 
-#Python
-RUN Invoke-WebRequest -Uri $env:pythonUri -OutFile c:\python.exe; \
-    Start-Job -ScriptBlock {& 'c:\python.exe' /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 Include_doc=0} | Wait-Job
-RUN    Start-Sleep 5; Remove-Item c:\python.exe
+#PowershellGet
+RUN Install-PackageProvider Nuget -Force; \
+    Install-Module -Name PowerShellGet -Force; \
+    Update-Module -Name PowerShellGet -Force
 
+#ChocolateyGet
+RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
+    Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
+RUN @( \
+    'python', \
+    'nodejs' \
+    ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
+
+#Jupyter
 USER ContainerAdministrator
+
 RUN pip install jupyter; \
     pip install jupyterhub; \
     pip install jupyterlab; \

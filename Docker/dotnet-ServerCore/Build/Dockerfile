@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:1909
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 SHELL ["powershell", "-Command", "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue';"]
 
 #WinRM
@@ -18,6 +18,7 @@ RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
     Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
     'python', \
+    'nodejs', \
     'dotnetcore-sdk' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
 
@@ -31,6 +32,7 @@ RUN pip install jupyter; \
     jupyter nbextensions_configurator enable; \
     pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master; \
     jupyter contrib nbextension install
+
 RUN dotnet tool install --global Microsoft.dotnet-interactive
 RUN $env:Path += ';C:\Users\ContainerAdministrator\.dotnet\tools'
 RUN dotnet interactive jupyter install

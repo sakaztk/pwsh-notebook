@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook
+FROM jupyter/minimal-notebook:dd2087c75645
 
 USER root
 
@@ -10,26 +10,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Powershell 6,7 / OMI / .Net SDK / .NET Interactive
+# Powershell 7 / OMI / .Net SDK / .NET Interactive
 RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb \
  && dpkg -i packages-microsoft-prod.deb \
  && rm packages-microsoft-prod.deb
 
 RUN add-apt-repository universe \
  && apt-get update \
- && apt-get install -y --no-install-recommends apt-transport-https \
- && apt-get update \
+ && apt-get install -y --no-install-recommends \
+   apt-transport-https \
  && apt-get install -y --no-install-recommends \
     powershell \
     omi \
     dotnet-sdk-3.1 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-
-RUN wget -q https://github.com/PowerShell/PowerShell/releases/download/v6.2.4/powershell_6.2.4-1.ubuntu.18.04_amd64.deb \
- && dpkg-deb -x powershell_6.2.4-1.ubuntu.18.04_amd64.deb / \
- && ln -s /opt/microsoft/powershell/6/pwsh /usr/bin/pwsh6 \
- && rm powershell_6.2.4-1.ubuntu.18.04_amd64.deb
 
 RUN dotnet tool install --global Microsoft.dotnet-interactive
 ENV PATH $PATH:~/.dotnet/tools
@@ -48,6 +43,11 @@ RUN ssh-keygen -A \
  && sed -i '/# override default of no subsystems/a Subsystem powershell /usr/bin/pwsh -sshs -NoLogo -NoProfile' /etc/ssh/sshd_config
 
 # Jupyter Notebook
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 RUN pip install powershell_kernel && python -m powershell_kernel.install --powershell-command pwsh \
  && pip install bash_kernel && python -m bash_kernel.install \
  && pip install jupyter_nbextensions_configurator && jupyter nbextensions_configurator enable \
@@ -57,7 +57,7 @@ RUN fix-permissions /home/$NB_USER
 
 RUN mkdir -p /usr/local/bin/start-notebook.d
 COPY start.sh /usr/local/bin/start-notebook.d
-RUN mkdir -p /usr/local/share/jupyter/kernels/powershell6
-COPY kernel-pwsh6.json /usr/local/share/jupyter/kernels/powershell6/kernel.json
+RUN mkdir -p /usr/local/share/jupyter/kernels/powershell7
+COPY kernel-pwsh7.json /usr/local/share/jupyter/kernels/powershell7/kernel.json
 
 USER $NB_USER

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:1909
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 SHELL ["powershell", "-Command", "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue';"]
 
 #WinRM
@@ -18,17 +18,10 @@ RUN Install-PackageProvider -Name ChocolateyGet -Force; \
     Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
     'python', \
+    'nodejs', \
     'powershell-core', \
     'dotnetcore-sdk' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
-
-#Powershell 6
-RUN New-Item -Path "$env:ProgramFiles\PowerShell\6" -ItemType Directory -Force; \
-    Push-Location "$env:ProgramFiles\PowerShell\6"
-RUN Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/download/v6.2.4/PowerShell-6.2.4-win-x64.zip' -OutFile 'pwsh6.zip'; \
-    Expand-Archive -Path 'pwsh6.zip' -Destination "$env:ProgramFiles\PowerShell\6" -Force; \
-    Remove-Item 'pwsh6.zip'
-RUN Set-Content -Value '@\"C:\Program Files\PowerShell\6\pwsh.exe\" %*' -Path "$PSHOME\pwsh6.cmd"
 
 #Jupyter
 USER ContainerAdministrator
@@ -47,9 +40,7 @@ RUN dotnet tool install --global Microsoft.dotnet-interactive
 RUN $env:Path += ';C:\Users\ContainerAdministrator\.dotnet\tools'
 RUN dotnet interactive jupyter install
 
-RUN New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell6/ -ItemType Directory -Force; \
-    New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell7/ -ItemType Directory -Force
-COPY kernel-pwsh6.json C:\\Users\\ContainerAdministrator\\AppData\\Roaming\\jupyter\\kernels\\powershell6\\kernel.json
+RUN New-Item C:\Users\ContainerAdministrator\AppData\Roaming\jupyter\kernels\powershell7/ -ItemType Directory -Force
 COPY kernel-pwsh7.json C:\\Users\\ContainerAdministrator\\AppData\\Roaming\\jupyter\\kernels\\powershell7\\kernel.json
 
 EXPOSE 8888

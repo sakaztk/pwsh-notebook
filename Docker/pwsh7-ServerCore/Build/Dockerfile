@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:1909
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 SHELL ["powershell", "-Command", "$ErrorActionPreference='Stop'; $ProgressPreference='SilentlyContinue';"]
 
 #WinRM
@@ -14,10 +14,11 @@ RUN Install-PackageProvider Nuget -Force; \
     Update-Module -Name PowerShellGet -Force
 
 #ChocolateyGet
-RUN Install-PackageProvider -Name ChocolateyGet -Force ; \
+RUN Install-PackageProvider -Name ChocolateyGet -Force; \
     Register-PackageSource -Name Chocolatey -ProviderName Chocolatey  -Location https://chocolatey.org/api/v2/ -Force
 RUN @( \
     'python', \
+    'nodejs', \
     'powershell-core' \
     ) | Foreach-Object {Install-Package -Provider ChocolateyGet -Name $_ -Force}
 

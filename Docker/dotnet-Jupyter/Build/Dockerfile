@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook
+FROM jupyter/minimal-notebook:dd2087c75645
 
 USER root
 
@@ -17,8 +17,8 @@ RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsof
 
 RUN add-apt-repository universe \
  && apt-get update \
- && apt-get install -y --no-install-recommends apt-transport-https \
- && apt-get update \
+ && apt-get install -y --no-install-recommends \
+   apt-transport-https \
  && apt-get install -y --no-install-recommends \
     omi \
     dotnet-sdk-3.1 \
@@ -42,6 +42,11 @@ RUN ssh-keygen -A \
  && sed -i '/# override default of no subsystems/a Subsystem powershell /usr/bin/pwsh -sshs -NoLogo -NoProfile' /etc/ssh/sshd_config
 
 # Jupyter Notebook
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 RUN pip install bash_kernel && python -m bash_kernel.install \
  && pip install jupyter_nbextensions_configurator && jupyter nbextensions_configurator enable \
  && pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master && jupyter contrib nbextension install

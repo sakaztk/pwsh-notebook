@@ -1,12 +1,10 @@
 # AIO-Jupyter
-![New](https://user-images.githubusercontent.com/20841864/74504331-2c1b3e80-4f37-11ea-8c48-b919105341ba.jpg)
+![AIO](https://user-images.githubusercontent.com/20841864/93236953-69d89200-f7ba-11ea-9761-8f1d1bda5e37.png)
 
 ## Base Container
- [jupyter/minimal-notebook](https://hub.docker.com/r/jupyter/minimal-notebook/) (Ubuntu 18.04)  
-(It can probably use another [Jupyter images](https://hub.docker.com/u/jupyter).)
+ [jupyter/minimal-notebook:dd2087c75645](https://hub.docker.com/r/jupyter/minimal-notebook/) (Ubuntu 18.04)  
 
 ## Installing
-- [PowerShell 6](https://github.com/PowerShell/PowerShell)
 - [PowerShell 7](https://github.com/PowerShell/PowerShell)
 - [PowerShell DSC for Linux](https://github.com/microsoft/PowerShell-DSC-for-Linux)
 - [Open Management Infrastructure](https://github.com/microsoft/omi)
@@ -16,13 +14,9 @@
 - [Jupyter Bash Kernel](https://github.com/takluyver/bash_kernel)
 - [Jupyter notebook extensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)
+- [Node.js](https://nodejs.org/)
 
 ## Run the PowerShell from Terminal
-- Powershell 6
-```
-$ pwsh6
-PS >
-```
 - Powershell 7
 ```
 $ pwsh

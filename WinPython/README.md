@@ -7,7 +7,7 @@
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
 - [Jupyter notebook extensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)
-- [Node.js](https://nodejs.org/ja/)
+- [Node.js](https://nodejs.org/)
 
 
 Refer to Definition.ps1 for installing version and path.

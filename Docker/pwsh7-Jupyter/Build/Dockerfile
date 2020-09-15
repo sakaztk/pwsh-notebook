@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook
+FROM jupyter/minimal-notebook:dd2087c75645
 
 USER root
 
@@ -17,15 +17,15 @@ RUN wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsof
 
 RUN add-apt-repository universe \
  && apt-get update \
- && apt-get install -y --no-install-recommends apt-transport-https \
- && apt-get update \
+ && apt-get install -y --no-install-recommends \
+   apt-transport-https \
  && apt-get install -y --no-install-recommends \
     powershell \
     omi \
     dotnet-runtime-3.1 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-
+ 
 # Powershell DSC Core
 RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-926/dsc-1.1.1-926.ssl_110.x64.deb --no-check-certificate \
  && dpkg -i dsc-1.1.1-926.ssl_110.x64.deb \
@@ -39,6 +39,11 @@ RUN ssh-keygen -A \
  && sed -i '/# override default of no subsystems/a Subsystem powershell /usr/bin/pwsh -sshs -NoLogo -NoProfile' /etc/ssh/sshd_config
 
 # Jupyter Notebook
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    npm \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 RUN pip install powershell_kernel && python -m powershell_kernel.install --powershell-command pwsh \
  && pip install bash_kernel && python -m bash_kernel.install \
  && pip install jupyter_nbextensions_configurator && jupyter nbextensions_configurator enable \
