@@ -57,7 +57,5 @@ RUN fix-permissions /home/$NB_USER
 
 RUN mkdir -p /usr/local/bin/start-notebook.d
 COPY start.sh /usr/local/bin/start-notebook.d
-RUN mkdir -p /usr/local/share/jupyter/kernels/powershell7
-COPY kernel-pwsh7.json /usr/local/share/jupyter/kernels/powershell7/kernel.json
 
 USER $NB_USER

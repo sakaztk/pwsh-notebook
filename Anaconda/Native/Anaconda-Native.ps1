@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 
 # Anaconda
-$uri = 'https://repo.anaconda.com/archive/Anaconda3-2020.07-Windows-x86_64.exe'
+$uri = 'https://repo.anaconda.com/archive/Anaconda3-2020.11-Windows-x86_64.exe'
 $opt = '/InstallationType=JustMe /AddToPath=0 /RegisterPython=1 /NoRegistru=0 /Noscripts=o /S'
 Invoke-WebRequest -Uri $uri -OutFile "anaconda.exe"
 Start-Process -FilePath "anaconda.exe" -ArgumentList $opt -wait

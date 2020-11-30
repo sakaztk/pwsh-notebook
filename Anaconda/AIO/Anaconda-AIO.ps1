@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 
 # Anaconda
-$uri = 'https://repo.anaconda.com/archive/Anaconda3-2020.07-Windows-x86_64.exe'
+$uri = 'https://repo.anaconda.com/archive/Anaconda3-2020.11-Windows-x86_64.exe'
 $opt = '/InstallationType=JustMe /AddToPath=0 /RegisterPython=1 /NoRegistru=0 /Noscripts=o /S'
 Invoke-WebRequest -Uri $uri -OutFile "anaconda.exe"
 Start-Process -FilePath "anaconda.exe" -ArgumentList $opt -wait
@@ -24,7 +24,7 @@ pip install powershell_kernel
 python -m powershell_kernel.install
 
 # PowerShell7
-$uri = 'https://github.com/PowerShell/PowerShell/releases/download/v7.0.3/PowerShell-7.0.3-win-x64.msi'
+$uri = 'https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/PowerShell-7.1.0-win-x64.msi'
 Invoke-WebRequest -Uri $uri -OutFile "pwsh.msi"
 .\pwsh.msi /passive
 Copy-Item -Path "$env:APPDATA\jupyter\kernels\powershell" -Destination "$env:APPDATA\jupyter\kernels\powershell7" -Recurse

@@ -24,7 +24,7 @@ pip install powershell_kernel
 python -m powershell_kernel.install
 
 # PowerShell7
-$uri = 'https://github.com/PowerShell/PowerShell/releases/download/v7.0.3/PowerShell-7.0.3-win-x64.msi'
+$uri = 'https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/PowerShell-7.1.0-win-x64.msi'
 Invoke-WebRequest -Uri $uri -OutFile "pwsh.msi"
 .\pwsh.msi /passive
 Copy-Item -Path "$env:APPDATA\jupyter\kernels\powershell" -Destination "$env:APPDATA\jupyter\kernels\powershell7" -Recurse
