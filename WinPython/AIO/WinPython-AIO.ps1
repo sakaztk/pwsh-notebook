@@ -1,5 +1,13 @@
 $ErrorActionPreference = 'Stop'
 . (join-path (Get-Item $PSScriptRoot).Parent.FullName 'Definition.ps1')
+# [Definition.ps1]
+# $wpTag    = '3.0.202011219'
+# $wpVer    = '64-3.8.7.0dot'
+# $pwsh7Ver = '7.1.1-win-x64'
+# $nodeVer  = '14.15.4'
+# $wpPath    = 'U:\Softwares\WinPython'
+# $nodePath  = 'U:\Softwares\node'
+# $pwsh7Path = 'U:\Softwares\pwsh7'
 
 # WinPython
 New-Item -Path $wpPath -ItemType Directory -Force
@@ -33,14 +41,27 @@ pip install jupyter
 pip install jupyterhub
 pip install jupyterlab
 pip install powershell_kernel
-pip install jupyter_nbextensions_configurator 
+pip install jupyter_nbextensions_configurator
 jupyter nbextensions_configurator enable
 pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
-jupyter contrib nbextension install --user
+jupyter contrib nbextension install --sys-prefix
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
+pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
+pip install git+https://github.com/NII-cloud-operation/sidestickies
+pip install git+https://github.com/NII-cloud-operation/nbsearch
+pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
+jupyter nbextension install --py lc_run_through --sys-prefix
+jupyter nbextension install --py lc_wrapper --sys-prefix
+jupyter nbextension install --py lc_multi_outputs --sys-prefix
+jupyter nbextension install --py notebook_index --sys-prefix
+jupyter nbextension install --py lc_notebook_diff --sys-prefix
+jupyter nbextension install --py nbtags --sys-prefix
+jupyter nbextension install --py nbsearch --sys-prefix
+jupyter nbextension install --py nblineage --sys-prefix
 python -m powershell_kernel.install
-$fileContent = Get-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Raw
-$fileContent = $filecontent -replace '\^','\a'
-$filecontent | Set-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Force
 
 # PowerShell7
 $pwsh7Root = Join-Path $pwsh7Path $pwsh7Ver
