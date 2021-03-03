@@ -12,22 +12,22 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Option)
 
 ## Installations
-.\Anaconda.ps1 [Script Options(s)]
+.\Anaconda.ps1 [Script Option(s)]
 ## Script Options
  - InstallationType [Computer | User]   
 Specify insatallation target to the Computer(All Users) or a User(Just Me).  
 Default: Computer  
 e.g.: .\Anaconda.ps1 -InstallationType User
 
-- InstallPowerShell7
+- InstallPowerShell7  
 This option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
 e.g.: .\Anaconda.ps1 -InstallPowerShell7
 
-- InstallDotnetInteractive
+- InstallDotnetInteractive  
 This option will install latest powershell 7 and available it in Jupyter Notebook options.  
 e.g.: .\Anaconda.ps1 -InstallDotnetInteractive
 
-- InstallNBExtensions
+- InstallNBExtensions  
 This option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).
 e.g.: .\Anaconda.ps1 -InstallNBExtensions
 
@@ -35,11 +35,11 @@ e.g.: .\Anaconda.ps1 -InstallNBExtensions
 This option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).
 e.g.: .\Anaconda.ps1 -InstallNIIExtensions
 
-- CleanupDownloadFiles
+- CleanupDownloadFiles  
 This switch option will delete downloaded files after installations.  
 e.g.: .\Anaconda.ps1 -DoNotCleanupDownloadFiles
 
-- WorkingFolder
+- WorkingFolder [Folder Path]  
 Specify the working folder in this script.
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Anaconda.ps1 -WorkingFolder C:\pathto\folder

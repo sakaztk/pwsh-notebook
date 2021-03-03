@@ -24,7 +24,7 @@ Write-Verbose "Commandline: `"$PSCommandPath`"$paramStrings"
 switch ( $InstallationType ) {
     { @('system', 'computer', 'allusers') -contains $_ } {
         if (-not([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-            Write-Verbose 'Relaunch script with admin admin privileges...'
+            Write-Verbose 'Relaunch script with admin privileges...'
             Start-Process powershell.exe "-NoExit -ExecutionPolicy Bypass -Command `"$PSCommandPath`" $paramStrings" -Verb RunAs
             exit
         }
@@ -96,7 +96,7 @@ if ( $InstallNIIExtensions ) {
     pip install git+https://github.com/NII-cloud-operation/sidestickies
     pip install git+https://github.com/NII-cloud-operation/nbsearch
     pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-    If ( $InstallNBExtensions ) {
+    if ( $InstallNBExtensions ) {
         jupyter nbextension install --py lc_run_through $pyTypeOpt
         jupyter nbextension install --py lc_wrapper $pyTypeOpt
         jupyter nbextension install --py lc_multi_outputs $pyTypeOpt
@@ -146,9 +146,9 @@ if ( $InstallDotnetInteractive ) {
         Write-Output 'Downloading latest .NET Core SDK...'
         $progressPreference = 'silentlyContinue'
         $links = (Invoke-WebRequest -uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
-        $fileUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern '.*/dotnet-core/.*sdk.*windows-x64-installer' | Get-Unique).Tostring().Trim()
-        $links = (Invoke-WebRequest -uri $fileUri -UseBasicParsing).Links.href
-        $fileUri = ($links | Select-String -Pattern '.*dotnet-sdk.*x64.exe' | Get-Unique).Tostring().Trim()
+        $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
+        $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
+        $fileUri = ((Invoke-WebRequest -uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
         Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'dotnet.exe' -Verbose
         $progressPreference = 'Continue'
     }
