@@ -36,7 +36,7 @@ switch ( $InstallationType ) {
     { @('user', 'justme') -contains $_ } {
         $condaOpt = '/InstallationType=JustMe /AddToPath=0 /RegisterPython=1 /NoRegistru=0 /Noscripts=o /S'
         $dataPath = $env:UserProfile
-        $kernelPath = "$env:AppData\Roaming\jupyter\kernels"
+        $kernelPath = "$env:AppData\jupyter\kernels"
         $pyTypeOpt = '--user'
     }
     default {
