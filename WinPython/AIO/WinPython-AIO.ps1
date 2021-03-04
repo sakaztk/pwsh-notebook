@@ -1,30 +1,63 @@
+#Requires -Version 5
+[CmdletBinding()]
+Param(
+    [ValidateSet(,'3.8','3.9')]
+    [String]$WinPythonVersion = '3.8',
+    [ValidateSet('unmarked','dot','cod')]
+    [String]$WinPythonType = 'dot',
+    [Switch]$InstallPowerShell7,
+    [Switch]$InstallDotnetInteractive,
+    [Switch]$InstallNBExtensions,
+    [Switch]$InstallNIIExtensions,
+    [Switch]$InstallPortableGit,
+    [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
+    [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\node'),
+    [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\pwsh7'),
+    [String]$PortableGitPath = (Join-Path $env:LOCALAPPDATA 'Programs\PortableGit'),
+    [Switch]$CleanupDownloadFiles,
+    [String]$WorkingFolder = $PSScriptRoot
+)
 $ErrorActionPreference = 'Stop'
-. (join-path (Get-Item $PSScriptRoot).Parent.FullName 'Definition.ps1')
-# [Definition.ps1]
-# $wpTag    = '3.0.202011219'
-# $wpVer    = '64-3.8.7.0dot'
-# $pwsh7Ver = '7.1.1-win-x64'
-# $nodeVer  = '14.15.4'
-# $wpPath    = 'U:\Softwares\WinPython'
-# $nodePath  = 'U:\Softwares\node'
-# $pwsh7Path = 'U:\Softwares\pwsh7'
+Push-Location $WorkingFolder
+$osBits = ( [System.IntPtr]::Size*8 ).ToString()
+Write-Output '##### WinPython Installation #####'
+if ( $WinPythonType = 'unmarked' ) {
+    $pattern = $osBits + '-' + $WinPythonVersion + '.*\d\.exe'
+}
+else {
+    $pattern = $osBits + '-' + $WinPythonVersion + '.*' + $WinPythonType + '\.exe'
+}
+$latestRelease = (Invoke-WebRequest 'https://github.com/winpython/winpython/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+$links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+$fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
+$progressPreference = 'SilentlyContinue'
+Write-Output 'Downloading Winpython...'
+Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile "Winpython.exe" -Verbose
+$progressPreference = 'Continue'
+New-Item -Path $WinPythonPath -ItemType Directory -Force
+Start-Process -FilePath "Winpython.exe" -ArgumentList ('-y -o"' + $WinPythonPath + '"') -wait
+$wpVer = $fileUri -replace ".*-((\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)).*\.exe",'$1'
+$wpRoot = Join-Path $WinPythonPath "WPy$osBits-$($wpVer -replace('\.',''))"
+$kernelPath = Join-Path $wpRoot '\settings\kernels'
+if ( $CleanupDownloadFiles ) {
+    Start-Sleep -Seconds 5
+    Remove-Item 'Winpython.exe' -Force
+}
 
-# WinPython
-New-Item -Path $wpPath -ItemType Directory -Force
-Invoke-WebRequest -Uri "https://github.com/winpython/winpython/releases/download/$wpTag/Winpython$wpVer.exe" -OutFile "$wpPath\Winpython.exe"
-Start-Process -FilePath "$wpPath\Winpython.exe" -ArgumentList '-y' -wait
-Remove-Item "$wpPath\Winpython.exe"
-$wpRoot = Join-Path $wpPath "WPy$($wpVer -replace('\.|dot|cod|Ps2',''))"
-
-# Node.js
-New-Item -Path $nodePath -ItemType Directory -Force
-Invoke-WebRequest -Uri "https://nodejs.org/dist/v$nodeVer/node-v$nodeVer-win-x64.zip" -OutFile "$nodePath\node.zip"
-Expand-Archive -Path "$nodePath\node.zip" -DestinationPath $nodePath -Force
-Remove-Item "$nodePath\node.zip"
-. (join-path $nodePath "node-v$nodeVer-win-x64\nodevars.bat")
+Write-Output '##### Node.js Installation #####'
+$links = (Invoke-WebRequest -uri 'https://nodejs.org/ja/download/' -UseBasicParsing).Links.href
+$pattern = "win-x$osBits.*\.zip"
+$fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
+$progressPreference = 'SilentlyContinue'
+Invoke-WebRequest -Uri $fileUri -OutFile "node.zip"
+$progressPreference = 'Continue'
+New-Item -Path $NodePath -ItemType Directory -Force
+Expand-Archive -Path "node.zip" -DestinationPath $NodePath -Force
+[Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
+$nodeFolder = [IO.Compression.ZipFile]::OpenRead('node.zip').Entries[0].FullName -replace('/','')
+. (join-path $NodePath "$nodeFolder\nodevars.bat")
 $env:Path += (';' + (join-path $nodePath "node-v$nodeVer-win-x64"))
-
-$nodeEnvPath = join-path $nodePath "node-v$nodeVer-win-x64"
+$nodeEnvPath = join-path $nodePath $nodeFolder
 @"
 set NODEPATH=$nodeEnvPath
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%NODEPATH%\;" >nul
@@ -34,50 +67,118 @@ if %ERRORLEVEL% NEQ 0 (
 
 "@ | Add-Content -Path "$wpRoot\scripts\env.bat"
 
-# Jupyter
+if ( $CleanupDownloadFiles -and $downloaded ) {
+    Start-Sleep -Seconds 5
+    Remove-Item 'node.zip' -Force
+}
+
+if ( $InstallPortableGit ) {
+    Write-Output '##### PortableGit Installation #####'
+    $latestRelease = (Invoke-WebRequest 'https://github.com/git-for-windows/git/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $fileUri = ($links | Select-String -Pattern ".*PortableGit.*$osBits.*\.exe" | Get-Unique).Tostring().Trim()
+    $progressPreference = 'SilentlyContinue'
+    Write-Output 'Downloading PortableGit...'
+    Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile "PortableGit.exe" -Verbose
+    $progressPreference = 'Continue'
+    New-Item -Path $PortableGitPath -ItemType Directory -Force
+    Start-Process -FilePath "PortableGit.exe" -ArgumentList ('-y -o"' + $PortableGitPath + '"') -wait
+    $gitEnvPath = Join-Path $PortableGitPath 'cmd'
+    if ( $CleanupDownloadFiles ) {
+        Start-Sleep -Seconds 5
+        Remove-Item 'PortableGit.exe' -Force
+    }
+    $env:Path += ";$gitEnvPath"
+@"
+set GITPATH=$gitEnvPath
+echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%GITPATH%\;" >nul
+if %ERRORLEVEL% NEQ 0 (
+    set "PATH=%PATH%;%GITPATH%\;"
+)
+
+"@ | Add-Content -Path "$wpRoot\scripts\env.bat"    
+}
+
+Write-Output '##### Jupyter Installation #####'
 & "$wpRoot\scripts\env_for_icons.bat"
-& "$wpRoot\scripts\WinPython_PS_Prompt.ps1"
+. "$wpRoot\scripts\WinPython_PS_Prompt.ps1"
 pip install jupyter
 pip install jupyterhub
 pip install jupyterlab
 pip install powershell_kernel
-pip install jupyter_nbextensions_configurator
-jupyter nbextensions_configurator enable
-pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
-jupyter contrib nbextension install --sys-prefix
-pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
-pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
-pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
-pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
-pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
-pip install git+https://github.com/NII-cloud-operation/sidestickies
-pip install git+https://github.com/NII-cloud-operation/nbsearch
-pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-jupyter nbextension install --py lc_run_through --sys-prefix
-jupyter nbextension install --py lc_wrapper --sys-prefix
-jupyter nbextension install --py lc_multi_outputs --sys-prefix
-jupyter nbextension install --py notebook_index --sys-prefix
-jupyter nbextension install --py lc_notebook_diff --sys-prefix
-jupyter nbextension install --py nbtags --sys-prefix
-jupyter nbextension install --py nbsearch --sys-prefix
-jupyter nbextension install --py nblineage --sys-prefix
 python -m powershell_kernel.install
 
-# PowerShell7
-$pwsh7Root = Join-Path $pwsh7Path $pwsh7Ver
-New-Item -Path "$pwsh7Root" -ItemType Directory -Force
-Invoke-WebRequest -Uri "https://github.com/PowerShell/PowerShell/releases/download/v$($pwsh7Ver -Replace('-win.*',''))/PowerShell-$pwsh7Ver.zip" -OutFile "$pwsh7Path\pwsh7.zip"
-Expand-Archive -Path "$pwsh7Path\pwsh7.zip" -DestinationPath $pwsh7Root -Force
-Remove-Item "$pwsh7Path\pwsh7.zip"
-Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh-preview.cmd"
-Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh.cmd"
-Copy-Item -Path "$wpRoot\settings\kernels\powershell" -Destination "$wpRoot\settings\kernels\powershell7" -Recurse
-$fileContent = Get-Content "$wpRoot\settings\kernels\powershell7\kernel.json" -Raw
-$fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
-$fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"$($pwsh7Root -replace '\\','\\')\\pwsh.exe`""
-$filecontent | Set-Content "$wpRoot\settings\kernels\powershell7\kernel.json"
+if ( $InstallNBExtensions ) {
+    pip install jupyter_nbextensions_configurator
+    jupyter nbextensions_configurator enable
+    pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
+    jupyter contrib nbextension install --sys-prefix
+}
+if ( $InstallNIIExtensions ) {
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
+    pip install git+https://github.com/NII-cloud-operation/sidestickies
+    pip install git+https://github.com/NII-cloud-operation/nbsearch
+    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
+    if ( $InstallNBExtensions ) {
+        jupyter nbextension install --py lc_run_through --sys-prefix
+        jupyter nbextension install --py lc_wrapper --sys-prefix
+        jupyter nbextension install --py lc_multi_outputs --sys-prefix
+        jupyter nbextension install --py notebook_index --sys-prefix
+        jupyter nbextension install --py lc_notebook_diff --sys-prefix
+        jupyter nbextension install --py nbtags --sys-prefix
+        jupyter nbextension install --py nbsearch --sys-prefix
+        jupyter nbextension install --py nblineage --sys-prefix
+    }
+}
 
-# Code Page
+if ( $InstallPowerShell7 ) {
+    $latestRelease = (Invoke-WebRequest 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
+    $progressPreference = 'silentlyContinue'
+    Write-Output 'Downloading latest PowerShell 7...'
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'pwsh.msi' -Verbose
+    $progressPreference = 'Continue'
+    Write-Output 'Installing PowerShell 7...'
+    Start-Process -FilePath 'pwsh.msi' -ArgumentList '/passive' -Wait
+    Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
+    $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
+    $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
+    $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
+    $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
+    if ( $CleanupDownloadFiles -and $downloaded ) {
+        Start-Sleep -Seconds 5
+        Remove-Item 'pwsh.msi' -Force
+    }
+
+}
+
+if ( $InstallDotnetInteractive ) {
+    Write-Output '##### .Net Interactive Installation #####'
+    $links = (Invoke-WebRequest -uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
+    $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
+    $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
+    $fileUri = ((Invoke-WebRequest -uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
+    Write-Output 'Downloading latest .NET Core SDK...'
+    $progressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'dotnet.exe' -Verbose
+    $progressPreference = 'Continue'
+    Write-Output 'Installing .NET Core SDK...'
+    Start-Process -FilePath 'dotnet.exe' -ArgumentList '/install /passive /norestart' -Wait
+    Write-Output 'Installing .NET Interactive...'
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    dotnet tool install --global Microsoft.dotnet-interactive
+    dotnet interactive jupyter install --path "$kernelPath"
+    if ( $CleanupDownloadFiles -and $downloaded ) {
+        Start-Sleep -Seconds 5
+        Remove-Item 'dotnet.exe' -Force
+    }
+}
+
 @(
     "$wpRoot\scripts\env.bat"
 ) | ForEach-Object {
@@ -87,3 +188,5 @@ $filecontent | Set-Content "$wpRoot\settings\kernels\powershell7\kernel.json"
         $filecontent | Set-Content $_
     }
 }
+Pop-Location
+Write-Host 'Done, It may require reboot to some function(s).' -ForegroundColor Green

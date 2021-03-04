@@ -20,19 +20,19 @@ Default: Computer
 e.g.: .\Miniconda.ps1 -InstallationType User
 
 - InstallPowerShell7  
-This option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
+This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
 e.g.: .\Miniconda.ps1 -InstallPowerShell7
 
 - InstallDotnetInteractive  
-This option will install latest powershell 7 and available it in Jupyter Notebook options.  
+This switch option will install latest powershell 7 and available it in Jupyter Notebook options.  
 e.g.: .\Miniconda.ps1 -InstallDotnetInteractive
 
 - InstallNBExtensions  
-This option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).
+This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).
 e.g.: .\Miniconda.ps1 -InstallNBExtensions
 
 - InstallNIIExtensions  
-This option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).
+This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).
 e.g.: .\Miniconda.ps1 -InstallNIIExtensions
 
 - CleanupDownloadFiles  
