@@ -32,16 +32,16 @@ $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasic
 $fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
 $progressPreference = 'SilentlyContinue'
 Write-Output 'Downloading Winpython...'
-Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile "Winpython.exe" -Verbose
+Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $WorkingFolder 'Winpython.exe') -Verbose
 $progressPreference = 'Continue'
 New-Item -Path $WinPythonPath -ItemType Directory -Force
-Start-Process -FilePath "Winpython.exe" -ArgumentList ('-y -o"' + $WinPythonPath + '"') -wait
+Start-Process -FilePath (Join-Path $WorkingFolder 'Winpython.exe') -ArgumentList ('-y -o"' + $WinPythonPath + '"') -wait
 $wpVer = $fileUri -replace ".*-((\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)).*\.exe",'$1'
 $wpRoot = Join-Path $WinPythonPath "WPy$osBits-$($wpVer -replace('\.',''))"
 $kernelPath = Join-Path $wpRoot '\settings\kernels'
 if ( $CleanupDownloadFiles ) {
     Start-Sleep -Seconds 5
-    Remove-Item 'Winpython.exe' -Force
+    Remove-Item (Join-Path $WorkingFolder 'Winpython.exe') -Force
 }
 
 Write-Output '##### Node.js Installation #####'
@@ -49,12 +49,12 @@ $links = (Invoke-WebRequest -uri 'https://nodejs.org/ja/download/' -UseBasicPars
 $pattern = "win-x$osBits.*\.zip"
 $fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
 $progressPreference = 'SilentlyContinue'
-Invoke-WebRequest -Uri $fileUri -OutFile "node.zip"
+Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\node.zip')
 $progressPreference = 'Continue'
 New-Item -Path $NodePath -ItemType Directory -Force
-Expand-Archive -Path "node.zip" -DestinationPath $NodePath -Force
+Expand-Archive -Path (Join-Path $WorkingFolder '\node.zip') -DestinationPath $NodePath -Force
 [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
-$nodeFolder = [IO.Compression.ZipFile]::OpenRead('node.zip').Entries[0].FullName -replace('/','')
+$nodeFolder = [IO.Compression.ZipFile]::OpenRead("$(Join-Path $WorkingFolder '\node.zip')").Entries[0].FullName -replace('/','')
 . (join-path $NodePath "$nodeFolder\nodevars.bat")
 $env:Path += (';' + (join-path $nodePath "node-v$nodeVer-win-x64"))
 $nodeEnvPath = join-path $nodePath $nodeFolder
@@ -69,7 +69,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 if ( $CleanupDownloadFiles -and $downloaded ) {
     Start-Sleep -Seconds 5
-    Remove-Item 'node.zip' -Force
+    Remove-Item (Join-Path $WorkingFolder '\node.zip') -Force
 }
 
 if ( $InstallPortableGit ) {
@@ -79,14 +79,14 @@ if ( $InstallPortableGit ) {
     $fileUri = ($links | Select-String -Pattern ".*PortableGit.*$osBits.*\.exe" | Get-Unique).Tostring().Trim()
     $progressPreference = 'SilentlyContinue'
     Write-Output 'Downloading PortableGit...'
-    Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile "PortableGit.exe" -Verbose
+    Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $WorkingFolder 'PortableGit.exe') -Verbose
     $progressPreference = 'Continue'
     New-Item -Path $PortableGitPath -ItemType Directory -Force
-    Start-Process -FilePath "PortableGit.exe" -ArgumentList ('-y -o"' + $PortableGitPath + '"') -wait
+    Start-Process -FilePath (Join-Path $WorkingFolder 'PortableGit.exe') -ArgumentList ('-y -o"' + $PortableGitPath + '"') -wait
     $gitEnvPath = Join-Path $PortableGitPath 'cmd'
     if ( $CleanupDownloadFiles ) {
         Start-Sleep -Seconds 5
-        Remove-Item 'PortableGit.exe' -Force
+        Remove-Item (Join-Path $WorkingFolder 'PortableGit.exe') -Force
     }
     $env:Path += ";$gitEnvPath"
 @"
@@ -141,10 +141,10 @@ if ( $InstallPowerShell7 ) {
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
     $progressPreference = 'silentlyContinue'
     Write-Output 'Downloading latest PowerShell 7...'
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'pwsh.msi' -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
     $progressPreference = 'Continue'
     Write-Output 'Installing PowerShell 7...'
-    Start-Process -FilePath 'pwsh.msi' -ArgumentList '/passive' -Wait
+    Start-Process -FilePath (Join-Path $WorkingFolder 'pwsh.msi') -ArgumentList '/passive' -Wait
     Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
     $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
     $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
@@ -152,7 +152,7 @@ if ( $InstallPowerShell7 ) {
     $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
     if ( $CleanupDownloadFiles -and $downloaded ) {
         Start-Sleep -Seconds 5
-        Remove-Item 'pwsh.msi' -Force
+        Remove-Item (Join-Path $WorkingFolder 'pwsh.msi') -Force
     }
 
 }
@@ -165,17 +165,17 @@ if ( $InstallDotnetInteractive ) {
     $fileUri = ((Invoke-WebRequest -uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
     Write-Output 'Downloading latest .NET Core SDK...'
     $progressPreference = 'SilentlyContinue'
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'dotnet.exe' -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
     $progressPreference = 'Continue'
     Write-Output 'Installing .NET Core SDK...'
-    Start-Process -FilePath 'dotnet.exe' -ArgumentList '/install /passive /norestart' -Wait
+    Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     Write-Output 'Installing .NET Interactive...'
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     dotnet tool install --global Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
     if ( $CleanupDownloadFiles -and $downloaded ) {
         Start-Sleep -Seconds 5
-        Remove-Item 'dotnet.exe' -Force
+        Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
     }
 }
 
