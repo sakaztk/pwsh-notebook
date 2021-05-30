@@ -6,6 +6,7 @@ Param(
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
+    [Switch]$ReplaceToAndrewguVersion,
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
 )
@@ -32,12 +33,14 @@ switch ( $InstallationType ) {
         $dataPath = $env:ProgramData
         $kernelPath = "$env:ProgramData\Anaconda3\share\jupyter\kernels"
         $pyTypeOpt = '--sys-prefix'
+        [System.Environment]::SetEnvironmentVariable('PYTHONUTF8',1,[System.EnvironmentVariableTarget]::Machine)
     }
     { @('user', 'justme') -contains $_ } {
         $condaOpt = '/InstallationType=JustMe /AddToPath=0 /RegisterPython=1 /NoRegistru=0 /Noscripts=o /S'
         $dataPath = $env:UserProfile
         $kernelPath = "$env:AppData\jupyter\kernels"
         $pyTypeOpt = '--user'
+        [System.Environment]::SetEnvironmentVariable('PYTHONUTF8',1,[System.EnvironmentVariableTarget]::User)
     }
     default {
         Write-Error 'Unexpected option.'
@@ -51,9 +54,9 @@ if ( Test-Path 'anaconda.exe' ) {
 else {
     Write-Output 'Downloading latest Anaconda...'
     $progressPreference = 'silentlyContinue'
-    $links = (Invoke-WebRequest -uri 'https://www.anaconda.com/products/individual' -UseBasicParsing).Links.href
+    $links = (Invoke-WebRequest -Uri 'https://www.anaconda.com/products/individual' -UseBasicParsing).Links.href
     $fileUri = ($links | Select-String -Pattern '.*Windows-x86_64.exe' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile 'anaconda.exe' -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'anaconda.exe') -Verbose
     $progressPreference = 'Continue'
     $downloaded = $true
 }
@@ -80,6 +83,12 @@ conda install -y -c conda-forge nodejs
 pip install powershell_kernel
 python -m powershell_kernel.install $pyTypeOpt
 
+if ( $ReplaceToAndrewguKernel ) {
+    Rename-Item -Path (Join-Path $env:WINPYDIR 'Lib\site-packages\powershell_kernel\powershell_proxy.py') -NewName 'powershell_proxy.py.org' -Force
+    Invoke-WebRequest -UseBasicParsing `
+        -Uri 'https://raw.githubusercontent.com/andrewgu/jupyter-powershell/master/powershell_kernel/powershell_proxy.py' `
+        -OutFile (Join-Path $env:WINPYDIR 'Lib\site-packages\powershell_kernel\powershell_proxy.py')
+}
 if ( $InstallNBExtensions ) {
     conda install -y -c conda-forge jupyter_nbextensions_configurator
     jupyter nbextensions_configurator enable
@@ -116,11 +125,11 @@ if ( $InstallPowerShell7 ) {
     else {
         Write-Output 'Downloading latest PowerShell 7...'
         $progressPreference = 'silentlyContinue'
-        $latestRelease = (Invoke-WebRequest 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-        $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+        $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+        $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
         $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
         Write-Verbose "Download from $fileUri"
-        Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'pwsh.msi' -Verbose
+        Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
         $progressPreference = 'Continue'
         $downloaded = $true
     }
@@ -145,22 +154,32 @@ if ( $InstallDotnetInteractive ) {
     else {
         Write-Output 'Downloading latest .NET Core SDK...'
         $progressPreference = 'silentlyContinue'
-        $links = (Invoke-WebRequest -uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
+        $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
         $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
         $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
-        $fileUri = ((Invoke-WebRequest -uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
-        Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile 'dotnet.exe' -Verbose
+        $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
+        Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
         $progressPreference = 'Continue'
     }
     Write-Output 'Installing .NET Core SDK...'
     Start-Process -FilePath 'dotnet.exe' -ArgumentList '/install /passive /norestart' -Wait
     Write-Output 'Installing .NET Interactive...'
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    dotnet tool install --global Microsoft.dotnet-interactive
+    dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
     if ( $CleanupDownloadFiles -and $downloaded ) {
         Start-Sleep -Seconds 5
         Remove-Item 'dotnet.exe' -Force
+    }
+}
+
+@(
+    "$dataPath\Anaconda3\Scripts\jupyter-notebook-script.py"
+) | ForEach-Object {
+    $fileContent = Get-Content $_ -Raw
+    if ($fileContent -notcontains "chcp 65001") {
+        $fileContent = $filecontent -replace "import sys", "$&`nimport os `nos.system('chcp 65001')"
+        $filecontent | Set-Content $_
     }
 }
 Pop-Location

@@ -10,6 +10,7 @@ Param(
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
     [Switch]$InstallPortableGit,
+    [Switch]$ReplaceToAndrewguKernel,
     [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
     [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\node'),
     [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\pwsh7'),
@@ -108,6 +109,12 @@ pip install jupyterlab
 pip install powershell_kernel
 python -m powershell_kernel.install
 
+if ( $ReplaceToAndrewguKernel ) {
+    Rename-Item -Path (Join-Path $env:WINPYDIR 'Lib\site-packages\powershell_kernel\powershell_proxy.py') -NewName 'powershell_proxy.py.org' -Force
+    Invoke-WebRequest -UseBasicParsing `
+        -Uri 'https://raw.githubusercontent.com/andrewgu/jupyter-powershell/master/powershell_kernel/powershell_proxy.py' `
+        -OutFile (Join-Path $env:WINPYDIR 'Lib\site-packages\powershell_kernel\powershell_proxy.py')
+}
 if ( $InstallNBExtensions ) {
     pip install jupyter_nbextensions_configurator
     jupyter nbextensions_configurator enable
@@ -136,15 +143,19 @@ if ( $InstallNIIExtensions ) {
 }
 
 if ( $InstallPowerShell7 ) {
-    $latestRelease = (Invoke-WebRequest 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
+    Write-Output '##### PowerShell 7 Installation #####'
+    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.zip' | Get-Unique).Tostring().Trim()
+    $pwsh7Ver = $fileUri -replace ".*Powershell-(7.*(\d+\.)?(\*|\d+).*)\.zip",'$1'
+    $pwsh7Root = Join-Path $PowerShell7Path $pwsh7Ver
     $progressPreference = 'silentlyContinue'
     Write-Output 'Downloading latest PowerShell 7...'
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.zip') -Verbose
     $progressPreference = 'Continue'
     Write-Output 'Installing PowerShell 7...'
-    Start-Process -FilePath (Join-Path $WorkingFolder 'pwsh.msi') -ArgumentList '/passive' -Wait
+    Expand-Archive -Path (Join-Path $WorkingFolder 'pwsh.zip') -DestinationPath $pwsh7Root -Force
+    Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh.cmd"
     Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
     $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
     $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
@@ -152,7 +163,7 @@ if ( $InstallPowerShell7 ) {
     $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
     if ( $CleanupDownloadFiles -and $downloaded ) {
         Start-Sleep -Seconds 5
-        Remove-Item (Join-Path $WorkingFolder 'pwsh.msi') -Force
+        Remove-Item (Join-Path $WorkingFolder 'pwsh.zip') -Force
     }
 
 }
@@ -171,7 +182,7 @@ if ( $InstallDotnetInteractive ) {
     Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     Write-Output 'Installing .NET Interactive...'
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    dotnet tool install --global Microsoft.dotnet-interactive
+    dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
     if ( $CleanupDownloadFiles -and $downloaded ) {
         Start-Sleep -Seconds 5
