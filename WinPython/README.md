@@ -11,7 +11,8 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Option)
 - [PortableGit](https://github.com/git-for-windows/git) (Option)
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Option)
-- [.Net Interactive](https://github.com/dotnet/interactive)
+- [.Net Interactive](https://github.com/dotnet/interactive) (Option)
+- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Option)
 
 ## Installations
 .\WinPython.ps1 [Script Option(s)]
@@ -60,16 +61,21 @@ This switch option will install [PortableGit](https://github.com/git-for-windows
 Mandatory: No  
 e.g.: .\WinPython.ps1 -InstallPortableGit
 
+- InstallDotnetInteractive  
+This switch option will install [.Net Interactive](https://github.com/dotnet/interactive).  
+Mandatory: No  
+e.g.: .\WinPython.ps1 -InstallDotnetInteractive
+
+- InstallDeepAQKernel
+This switch option will install [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
+Mandatory: No  
+e.g.: .\WinPython.ps1 -InstallDeepAQKernel
+
 - PortableGitPath  
 Specify installation path of the PortableGit.  
 Mandatory: No  
 Default: $env:LOCALAPPDATA\Programs\PortableGit  
 e.g.: .\WinPython.ps1 -PortableGitPath C:\PathTo\PortableGit
-
-- InstallDotnetInteractive  
-This switch option will install [.Net Interactive](https://github.com/dotnet/interactive).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallDotnetInteractive
 
 - CleanupDownloadFiles  
 This switch option will delete downloaded files after installations.  
@@ -82,8 +88,13 @@ Default: $PSScriptRoot (Same folder as this script)
 Mandatory: No  
 e.g.: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
 
+- AddStartMenu
+This switch option will add WinPython binaries to Windows start menu.  
+Mandatory: No  
+e.g.: .\WinPython.ps1 -AddStartMenu
+
 Use following option if you install all softwares  
-.\WinPython.ps1 -InstallPowerShell7 -InstallNBExtensions -InstallNIIExtensions -InstallPortableGit -InstallDotnetInteractive
+.\WinPython.ps1 -InstallPowerShell7 -InstallNBExtensions -InstallNIIExtensions -InstallPortableGit -InstallDotnetInteractive -InstallDeepAQKernel
 
 ## Run the PowerShell from Terminal
 - Powershell 5 (Native)

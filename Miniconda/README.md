@@ -10,6 +10,8 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Option)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Option)
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Option)
+- [.Net Interactive](https://github.com/dotnet/interactive) (Option)
+- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Option)
 
 ## Installations
 .\Miniconda.ps1 [Script Option(s)]
@@ -23,10 +25,6 @@ e.g.: .\Miniconda.ps1 -InstallationType User
 This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
 e.g.: .\Miniconda.ps1 -InstallPowerShell7
 
-- InstallDotnetInteractive  
-This switch option will install latest powershell 7 and available it in Jupyter Notebook options.  
-e.g.: .\Miniconda.ps1 -InstallDotnetInteractive
-
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).
 e.g.: .\Miniconda.ps1 -InstallNBExtensions
@@ -34,6 +32,15 @@ e.g.: .\Miniconda.ps1 -InstallNBExtensions
 - InstallNIIExtensions  
 This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).
 e.g.: .\Miniconda.ps1 -InstallNIIExtensions
+
+- InstallDotnetInteractive  
+This switch option will install latest powershell 7 and available it in Jupyter Notebook options.  
+e.g.: .\Miniconda.ps1 -InstallDotnetInteractive
+
+- InstallDeepAQKernel
+This switch option will install [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
+Mandatory: No  
+e.g.: .\WinPython.ps1 -InstallDeepAQKernel
 
 - CleanupDownloadFiles  
 This switch option will delete downloaded files after installations.  
@@ -45,7 +52,7 @@ Default: $PSScriptRoot (Same folder as this script)
 e.g.: .\Miniconda.ps1 -WorkingFolder C:\pathto\folder
 
 Use following option if you install all softwares  
-.\Miniconda.ps1 -InstallPowerShell7 -InstallDotnetInteractive -InstallNBExtensions -InstallNIIExtensions
+.\Miniconda.ps1 -InstallPowerShell7 -InstallDotnetInteractive -InstallNBExtensions -InstallNIIExtensions -InstallDeepAQKernel
 
 ## Run the PowerShell from Terminal
 - Powershell 5 (Native)

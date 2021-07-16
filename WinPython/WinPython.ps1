@@ -11,11 +11,12 @@ Param(
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
     [Switch]$InstallPortableGit,
-    [Switch]$ReplaceToAndrewguKernel,
+    [Switch]$InstallDeepAQKernel,
+    [Switch]$AddStartMenu,
     [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
-    [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\node'),
-    [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\pwsh7'),
-    [String]$PortableGitPath = (Join-Path $env:LOCALAPPDATA 'Programs\PortableGit'),
+    [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\node'),
+    [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\pwsh7'),
+    [String]$PortableGitPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\PortableGit'),
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
 )
@@ -27,6 +28,7 @@ Write-Verbose ('$InstallDotnetInteractive = ' + $InstallDotnetInteractive)
 Write-Verbose ('$InstallNBExtensions = ' + $InstallNBExtensions)
 Write-Verbose ('$InstallNIIExtensions = ' + $InstallNIIExtensions)
 Write-Verbose ('$InstallPortableGit = ' + $InstallPortableGit)
+Write-Verbose ('$InstallDeepAQKernel = ' + $InstallDeepAQKernel)
 Write-Verbose ('$WinPythonPath = ' + $WinPythonPath)
 Write-Verbose ('$NodePath = ' + $NodePath)
 Write-Verbose ('$PowerShell7Path = ' + $PowerShell7Path)
@@ -35,6 +37,12 @@ Write-Verbose ('$WorkingFolder = ' + $WorkingFolder)
 Write-Verbose ('$CleanupDownloadFiles = ' + $CleanupDownloadFiles)
 Push-Location $WorkingFolder
 $osBits = ( [System.IntPtr]::Size*8 ).ToString()
+
+if ( ($null -ne (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -or (-not($InstallPortableGit)) ) {
+    if ( $InstallNIIExtensions ) {
+        throw 'You need git or InstallPortableGit option for InstallNIIExtensions option.'
+    }
+}
 
 $progressPreference = 'SilentlyContinue'
 
@@ -90,6 +98,13 @@ if ( $InstallDotnetInteractive ) {
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 
+if ( $InstallDeepAQKernel ) {
+    Write-Verbose 'Downloading latest DeepAQ Kernel...'
+    $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShell5/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*UnofficialOriginalBinaries.zip' | Get-Unique)
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Verbose
+}
+
 $progressPreference = 'Continue'
 
 Write-Verbose 'Installing WinPython...'
@@ -107,8 +122,10 @@ if ( $CleanupDownloadFiles ) {
 Write-Verbose 'Installing Node.js...'
 New-Item -Path $NodePath -ItemType Directory -Force
 Expand-Archive -Path (Join-Path $WorkingFolder '\node.zip') -DestinationPath $NodePath -Force
-[Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem') > $null
-$nodeFolder = [IO.Compression.ZipFile]::OpenRead("$(Join-Path $WorkingFolder '\node.zip')").Entries[0].FullName -replace('/','')
+[Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')
+$zipFile = [IO.Compression.ZipFile]::OpenRead("$(Join-Path $WorkingFolder '\node.zip')")
+$nodeFolder = $zipFile.Entries[0].FullName -replace('/','')
+$zipFile.Dispose()
 $nodeEnvPath = join-path $nodePath 'Latest'
 New-Item -ItemType SymbolicLink -Path $nodeEnvPath -Target (join-path $nodePath $nodeFolder) -Force
 . (join-path $nodeEnvPath "nodevars.bat")
@@ -122,8 +139,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 "@ | Add-Content -Path "$wpRoot\scripts\env.bat"
 
-if ( $CleanupDownloadFiles -and $downloaded ) {
-    Start-Sleep -Seconds 5
+if ( $CleanupDownloadFiles ) {
     Remove-Item (Join-Path $WorkingFolder '\node.zip') -Force
 }
 
@@ -194,7 +210,7 @@ if ( $InstallPowerShell7 ) {
     $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
     $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
     $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
-    if ( $CleanupDownloadFiles -and $downloaded ) {
+    if ( $CleanupDownloadFiles ) {
         Start-Sleep -Seconds 5
         Remove-Item (Join-Path $WorkingFolder 'pwsh.zip') -Force
     }
@@ -207,10 +223,43 @@ if ( $InstallDotnetInteractive ) {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
-    if ( $CleanupDownloadFiles -and $downloaded ) {
+    if ( $CleanupDownloadFiles ) {
         Start-Sleep -Seconds 5
         Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
     }
+}
+
+if ( $InstallDeepAQKernel ) {
+    Write-Verbose 'Installing DeepAQKernel...'
+    $packagePath = Join-Path $wpRoot (Get-ChildItem $wpRoot -Filter "python-$WinPythonVersion*" -Name) | Join-Path -ChildPath '\Lib\site-packages'
+    $installPath = Join-Path $packagePath 'powershell5_kernel'
+    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel.zip') -DestinationPath $installPath -Force
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+@"
+{
+  "argv": [
+    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
+    "{connection_file}"
+  ],
+  "display_name": "PowerShell (Native)",
+  "language": "Powershell"
+}
+"@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
+
+    if ( $CleanupDownloadFiles ) {
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Force
+    }
+}
+
+if ( $AddStartMenu ) {
+    $shortcutPath = join-path $env:APPDATA '\Microsoft\Windows\Start Menu\Programs\WinPython'
+    New-Item -Path $shortcutPath -ItemType Directory -Force
+    $wshShell = New-Object -comObject WScript.Shell
+    Get-ChildItem -Path $wpRoot -Filter '*.exe' | ForEach-Object {
+        $Shortcut = $WshShell.CreateShortcut("$shortcutPath\$_.Name.lnk")
+        $Shortcut.TargetPath = $_.FullName
+        $Shortcut.Save()    
+    }    
 }
 
 @(
