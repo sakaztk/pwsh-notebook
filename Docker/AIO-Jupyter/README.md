@@ -14,6 +14,7 @@
 - [Jupyter Bash Kernel](https://github.com/takluyver/bash_kernel)
 - [Jupyter notebook extensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)
+- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation)
 - [Node.js](https://nodejs.org/)
 
 ## Run the PowerShell from Terminal
