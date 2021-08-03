@@ -1,1 +1,0 @@
-{"argv": ["python.exe", "-m", "powershell_kernel", "-f", "{connection_file}"], "display_name": "PowerShell 7", "env": {"powershell_command": "pwsh"}, "language": "powershell7"}
