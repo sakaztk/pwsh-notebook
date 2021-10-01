@@ -1,17 +1,16 @@
 # Anaconda
 Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Notebook](https://jupyter.org/) on [Anaconda](https://www.anaconda.com/).  
-![notebook](https://user-images.githubusercontent.com/20841864/93240613-4ebc5100-f7bf-11ea-9ff5-586a28ab5492.png)
 
 ## Installing Softwares
 - [Anaconda](https://www.anaconda.com/)
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
-- [PowerShell 7](https://github.com/PowerShell/PowerShell) (Option)
-- [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Option)
-- [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Option)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Option)
-- [.Net Interactive](https://github.com/dotnet/interactive) (Option)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Option)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
+- [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
+- [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
+- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
+- [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
+- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Optional)
 
 ## Installations
 .\Anaconda.ps1 [Script Option(s)]
@@ -26,11 +25,11 @@ This switch option will install [latest PowerShell 7](https://github.com/PowerSh
 e.g.: .\Anaconda.ps1 -InstallPowerShell7
 
 - InstallNBExtensions  
-This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).
+This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 e.g.: .\Anaconda.ps1 -InstallNBExtensions
 
 - InstallNIIExtensions  
-This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).
+This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).  
 e.g.: .\Anaconda.ps1 -InstallNIIExtensions
 
 - InstallDotnetInteractive  

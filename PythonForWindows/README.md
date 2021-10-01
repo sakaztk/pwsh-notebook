@@ -5,13 +5,13 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [Python for Windows](https://www.python.org/)
 - [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
-- [PowerShell 7](https://github.com/PowerShell/PowerShell) (Option)
-- [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Option)
-- [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Option)
-- [Git for Windows](https://gitforwindows.org/) (Option)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Option)
-- [.Net Interactive](https://github.com/dotnet/interactive) (Option)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Option)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
+- [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
+- [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
+- [Git for Windows](https://gitforwindows.org/) (Optional)
+- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
+- [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
+- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Optional)
 
 ## Installations
 .\WinPython.ps1 [Script Option(s)]
