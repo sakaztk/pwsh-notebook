@@ -2,10 +2,10 @@
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 Param(
-    [ValidateSet(,'3.8','3.9')]
+    [ValidateSet('3.7','3.8','3.9','3.10')]
     [String]$WinPythonVersion = '3.8',
-    [ValidateSet('unmarked','dot','cod')]
-    [String]$WinPythonType = 'dot',
+    [ValidateSet('unmarked','dot','cod','PyPy','dotPyPy','post1')]
+    [String]$WinPythonType = 'dotPyPy',
     [Switch]$InstallPowerShell7,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
@@ -13,6 +13,8 @@ Param(
     [Switch]$InstallPortableGit,
     [Switch]$InstallDeepAQKernel,
     [Switch]$AddStartMenu,
+    [String]$DeepAQKernelName = 'PowerShell (Native)',
+    [String]$ReplacePowershellKernelNameTo = 'PowerShell 5',
     [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
     [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\node'),
     [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\pwsh7'),
@@ -38,7 +40,7 @@ Write-Verbose ('$CleanupDownloadFiles = ' + $CleanupDownloadFiles)
 Push-Location $WorkingFolder
 $osBits = ( [System.IntPtr]::Size*8 ).ToString()
 
-if ( ($null -ne (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -or (-not($InstallPortableGit)) ) {
+if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -or (-not($InstallPortableGit)) ) {
     if ( $InstallNIIExtensions ) {
         throw 'You need git or InstallPortableGit option for InstallNIIExtensions option.'
     }
@@ -241,7 +243,7 @@ if ( $InstallDeepAQKernel ) {
     "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
     "{connection_file}"
   ],
-  "display_name": "PowerShell (Native)",
+  "display_name": "$DeepAQKernelName",
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
@@ -250,7 +252,11 @@ if ( $InstallDeepAQKernel ) {
         Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Force
     }
 }
-
+if ( $InstallPowerShell7 -or $InstallDeepAQKernel ) {
+    $fileContent = Get-Content (Join-Path $kernelPath '\powershell\kernel.json')
+    $fileContent = $filecontent -replace '"display_name": "PowerShell"', ('"display_name": "' + $ReplacePowershellKernelNameTo + '"')
+    $filecontent | Set-Content (Join-Path $kernelPath '\powershell\kernel.json')
+}
 if ( $AddStartMenu ) {
     $shortcutPath = join-path $env:APPDATA '\Microsoft\Windows\Start Menu\Programs\WinPython'
     New-Item -Path $shortcutPath -ItemType Directory -Force
