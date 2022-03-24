@@ -18,9 +18,8 @@ Param(
 )
 $ErrorActionPreference = 'Stop'
 Push-Location $WorkingFolder
-$osBits = ( [System.IntPtr]::Size*8 ).ToString()
 
-if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; git --version} -ErrorAction SilentlyContinue)) -or (-not($InstallGit)) ) {
+if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; git --version} -ErrorAction SilentlyContinue)) -and (-not($InstallGit)) ) {
     if ( $InstallNIIExtensions ) {
         throw 'You need git command or InstallGit option for InstallNIIExtensions option.'
     }
