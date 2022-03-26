@@ -3,21 +3,19 @@
 [CmdletBinding()]
 Param(
     [ValidateSet('3.7','3.8','3.9','3.10')]
-    [String]$WinPythonVersion = '3.8',
+    [String]$WinPythonVersion = '3.9',
     [ValidateSet('unmarked','dot','cod','PyPy','dotPyPy','post1')]
-    [String]$WinPythonType = 'dotPyPy',
-    [Switch]$InstallPowerShell7,
+    [String]$WinPythonType = 'dot',
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
     [Switch]$InstallPortableGit,
-    [Switch]$InstallDeepAQKernel,
+    [Switch]$UsePipKernel,
+    [Switch]$InstallPwsh7ForPipKernel,
     [Switch]$AddStartMenu,
-    [String]$DeepAQKernelName = 'PowerShell (Native)',
-    [String]$ReplacePowershellKernelNameTo = 'PowerShell 5',
     [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
     [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\node'),
-    [String]$PowerShell7Path = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\pwsh7'),
+    [String]$Pwsh7ForPipKernelPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\pwsh7'),
     [String]$PortableGitPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\PortableGit'),
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
@@ -25,15 +23,15 @@ Param(
 $ErrorActionPreference = 'Stop'
 Write-Verbose ('$WinPythonVersion = ' + $WinPythonVersion)
 Write-Verbose ('$WinPythonType = ' + $WinPythonType)
-Write-Verbose ('$InstallPowerShell7 = ' + $InstallPowerShell7)
 Write-Verbose ('$InstallDotnetInteractive = ' + $InstallDotnetInteractive)
 Write-Verbose ('$InstallNBExtensions = ' + $InstallNBExtensions)
 Write-Verbose ('$InstallNIIExtensions = ' + $InstallNIIExtensions)
 Write-Verbose ('$InstallPortableGit = ' + $InstallPortableGit)
-Write-Verbose ('$InstallDeepAQKernel = ' + $InstallDeepAQKernel)
+Write-Verbose ('$UsePipKernel = ' + $UsePipKernel)
+Write-Verbose ('$InstallPwsh7ForPipKernel = ' + $InstallPwsh7ForPipKernel)
 Write-Verbose ('$WinPythonPath = ' + $WinPythonPath)
 Write-Verbose ('$NodePath = ' + $NodePath)
-Write-Verbose ('$PowerShell7Path = ' + $PowerShell7Path)
+Write-Verbose ('$Pwsh7ForPipKernelPath = ' + $Pwsh7ForPipKernelPath)
 Write-Verbose ('$PortableGitPath = ' + $PortableGitPath)
 Write-Verbose ('$WorkingFolder = ' + $WorkingFolder)
 Write-Verbose ('$CleanupDownloadFiles = ' + $CleanupDownloadFiles)
@@ -81,12 +79,12 @@ if ( $InstallPortableGit ) {
     Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $WorkingFolder 'PortableGit.exe') -Verbose
 }
 
-if ( $InstallPowerShell7 ) {
+if ( $InstallPwsh7ForPipKernel ) {
     Write-Verbose 'Downloading latest PowerShell 7...'
     $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
     $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.zip' | Get-Unique).Tostring().Trim()
-    $pwsh7Root = Join-Path $PowerShell7Path 'Latest'
+    $pwsh7Root = Join-Path $Pwsh7ForPipKernelPath 'Latest'
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.zip') -Verbose
     $pwsh7Ver = $fileUri -replace ".*Powershell-(7.*(\d+\.)?(\*|\d+).*)\.zip",'$1'
 }
@@ -100,11 +98,16 @@ if ( $InstallDotnetInteractive ) {
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 
-if ( $InstallDeepAQKernel ) {
-    Write-Verbose 'Downloading latest DeepAQ Kernel...'
-    $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShell5/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
+if ( -not($UsePipKernel) ) {
+    Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
+    $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*UnofficialOriginalBinaries.zip' | Get-Unique)
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Verbose
+    Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
+    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Verbose
 }
 
 $progressPreference = 'Continue'
@@ -168,13 +171,11 @@ if %ERRORLEVEL% NEQ 0 (
 Write-Verbose 'Installing Jupyter...'
 & "$wpRoot\scripts\env_for_icons.bat"
 . "$wpRoot\scripts\WinPython_PS_Prompt.ps1"
+pip install --upgrade pip
+pip install --upgrade wheel
 pip install jupyter
+pip install notebook
 pip install jupyterlab
-pip install powershell_kernel
-python -m powershell_kernel.install
-$fileContent = Get-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Raw
-$fileContent = $filecontent -replace '\^','\a'
-$filecontent | Set-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Force
 if ( $InstallNBExtensions ) {
     pip install jupyter_nbextensions_configurator
     jupyter nbextensions_configurator enable
@@ -202,19 +203,63 @@ if ( $InstallNIIExtensions ) {
     }
 }
 
-if ( $InstallPowerShell7 ) {
-    Write-Verbose 'Installing PowerShell 7...'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'pwsh.zip') -DestinationPath (Join-Path $PowerShell7Path $pwsh7Ver) -Force
-    New-Item -ItemType SymbolicLink -Path $pwsh7Root -Target (Join-Path $PowerShell7Path $pwsh7Ver) -Force
-    Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh.cmd"
-    Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
-    $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
-    $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
-    $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
-    $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
+if ( $UsePipKernel ) {
+    pip install powershell_kernel
+    python -m powershell_kernel.install
+    $fileContent = Get-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Raw
+    $fileContent = $filecontent -replace '\^','\a'
+    $filecontent | Set-Content "$env:WINPYDIR\Lib\site-packages\powershell_kernel\powershell_proxy.py" -Force
+    if ( $InstallPwsh7ForPipKernel ) {
+        Write-Verbose 'Installing PowerShell 7...'
+        Expand-Archive -Path (Join-Path $WorkingFolder 'pwsh.zip') -DestinationPath (Join-Path $Pwsh7ForPipKernelPath $pwsh7Ver) -Force
+        New-Item -ItemType SymbolicLink -Path $pwsh7Root -Target (Join-Path $Pwsh7ForPipKernelPath $pwsh7Ver) -Force
+        Set-Content -Value "@`"$pwsh7Root\pwsh.exe`" %*" -Path "$env:WINPYDIR\pwsh.cmd"
+        Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
+        $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
+        $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
+        $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
+        $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
+        if ( $CleanupDownloadFiles ) {
+            Start-Sleep -Seconds 5
+            Remove-Item (Join-Path $WorkingFolder 'pwsh.zip') -Force
+        }
+    }
+}
+else {
+    $packagePath = Join-Path $wpRoot (Get-ChildItem $wpRoot -Filter "python-$WinPythonVersion*" -Name) | Join-Path -ChildPath '\Lib\site-packages'
+    Write-Verbose 'Installing DeepAQ pwsh5 Kernel...'
+    $installPath = Join-Path $packagePath 'powershell5_kernel'
+    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -DestinationPath $installPath -Force
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+@"
+{
+  "argv": [
+    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
+    "{connection_file}"
+  ],
+  "display_name": "PowerShell 5",
+  "language": "Powershell"
+}
+"@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
+
+    Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
+    $installPath = Join-Path $packagePath 'powershellSDK_kernel'
+    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -DestinationPath $installPath -Force
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
+@"
+{
+  "argv": [
+    "$($installPath.replace('\','/'))/Jupyter_PowerShellSDK.exe",
+    "{connection_file}"
+  ],
+  "display_name": "PowerShell 7 (SDK)",
+  "language": "Powershell"
+}
+"@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
+
     if ( $CleanupDownloadFiles ) {
-        Start-Sleep -Seconds 5
-        Remove-Item (Join-Path $WorkingFolder 'pwsh.zip') -Force
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Force
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Force
     }
 }
 
@@ -231,38 +276,12 @@ if ( $InstallDotnetInteractive ) {
     }
 }
 
-if ( $InstallDeepAQKernel ) {
-    Write-Verbose 'Installing DeepAQKernel...'
-    $packagePath = Join-Path $wpRoot (Get-ChildItem $wpRoot -Filter "python-$WinPythonVersion*" -Name) | Join-Path -ChildPath '\Lib\site-packages'
-    $installPath = Join-Path $packagePath 'powershell5_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel.zip') -DestinationPath $installPath -Force
-    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
-@"
-{
-  "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
-    "{connection_file}"
-  ],
-  "display_name": "$DeepAQKernelName",
-  "language": "Powershell"
-}
-"@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
-
-    if ( $CleanupDownloadFiles ) {
-        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Force
-    }
-}
-if ( $InstallPowerShell7 -or $InstallDeepAQKernel ) {
-    $fileContent = Get-Content (Join-Path $kernelPath '\powershell\kernel.json')
-    $fileContent = $filecontent -replace '"display_name": "PowerShell"', ('"display_name": "' + $ReplacePowershellKernelNameTo + '"')
-    $filecontent | Set-Content (Join-Path $kernelPath '\powershell\kernel.json')
-}
 if ( $AddStartMenu ) {
     $shortcutPath = join-path $env:APPDATA '\Microsoft\Windows\Start Menu\Programs\WinPython'
     New-Item -Path $shortcutPath -ItemType Directory -Force
     $wshShell = New-Object -comObject WScript.Shell
     Get-ChildItem -Path $wpRoot -Filter '*.exe' | ForEach-Object {
-        $Shortcut = $WshShell.CreateShortcut("$shortcutPath\$_.Name.lnk")
+        $Shortcut = $WshShell.CreateShortcut("$shortcutPath\$($_.Name).lnk")
         $Shortcut.TargetPath = $_.FullName
         $Shortcut.Save()    
     }    

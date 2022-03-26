@@ -12,6 +12,7 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 - [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Optional)
+- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
 
 ## Installations
 .\WinPython.ps1 [Script Option(s)]
@@ -34,10 +35,15 @@ Mandatory: No
 Default: $env:LOCALAPPDATA\Programs\WinPython  
 e.g.: .\WinPython.ps1 -WinPythonPath C:\PathTo\WinPython
 
-- InstallPowerShell7  
-This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
+- UsePipKernel  
+This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
 Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallPowerShell7
+e.g.: .\WinPython.ps1 -UsePipKernel
+
+- InstallPwsh7ForPipKernel  
+This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options with [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell).  
+Mandatory: No  
+e.g.: .\WinPython.ps1 -UsePipKernel -InstallPwsh7ForPipKernel
 
 - PowerShell7Path  
 Specify installation path of the PowerShell 7.  
@@ -65,11 +71,6 @@ This switch option will install [.Net Interactive](https://github.com/dotnet/int
 Mandatory: No  
 e.g.: .\WinPython.ps1 -InstallDotnetInteractive
 
-- InstallDeepAQKernel
-This switch option will install [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallDeepAQKernel
-
 - PortableGitPath  
 Specify installation path of the PortableGit.  
 Mandatory: No  
@@ -91,18 +92,3 @@ e.g.: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
 This switch option will add WinPython binaries to Windows start menu.  
 Mandatory: No  
 e.g.: .\WinPython.ps1 -AddStartMenu
-
-Use following option if you install all softwares  
-.\WinPython.ps1 -InstallPowerShell7 -InstallNBExtensions -InstallNIIExtensions -InstallPortableGit -InstallDotnetInteractive -InstallDeepAQKernel
-
-## Run the PowerShell from Terminal
-- Powershell 5 (Native)
-```
-$ powershell
-PS >
-```
-- Powershell 7
-```
-$ pwsh
-PS >
-```
