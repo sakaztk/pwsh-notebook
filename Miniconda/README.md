@@ -3,15 +3,15 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 
 ## Installing Softwares
 - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell)
+- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5)
+- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
+- [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) (Optional)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
 - [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Optional)
-- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
 
 ## Installations
 .\Miniconda.ps1 [Script Option(s)]
