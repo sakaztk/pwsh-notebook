@@ -2,17 +2,16 @@
 [CmdletBinding()]
 Param(
     [String]$InstallationType = 'Computer',
-    [ValidateSet('2.7','3.6','3.7','3.8','3.9')]
-    [String]$PythonVersion = '3.8',
+    [ValidateSet('2.7','3.6','3.7','3.8','3.9','3.10')]
+    [String]$PythonVersion = '3.9',
     [String]$OverwriteInstallOptionsTo = '',
+    [Switch]$InstallPwsh7SDK,
     [Switch]$InstallGit,
-    [Switch]$InstallPowerShell7,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
-    [Switch]$InstallDeepAQKernel,
-    [String]$DeepAQKernelName = 'PowerShell (Native)',
-    [String]$ReplacePowershellKernelNameTo = 'PowerShell 5',
+    [Switch]$UsePipKernel,
+    [Switch]$InstallPwsh7ForPipKernel,
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
 )
@@ -85,7 +84,8 @@ if ( $InstallGit ) {
     Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'gitinstaller.exe') -Verbose
 
 }
-if ( $InstallPowerShell7 ) {
+
+if ( $InstallPwsh7ForPipKernel ) {
     Write-Verbose 'Downloading latest PowerShell 7...'
     $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
     $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
@@ -93,22 +93,38 @@ if ( $InstallPowerShell7 ) {
     Write-Verbose "Download from $fileUri"
     Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
 }
+
 if ( $InstallDotnetInteractive ) {
-    Write-Verbose 'Downloading latest .NET Core SDK...'
+    Write-Verbose 'Downloading latest .NET SDK...'
     $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
     $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
     Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
-if ( $InstallDeepAQKernel ) {
-    Write-Verbose 'Downloading latest DeepAQ Kernel...'
-    $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShell5/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
+else {
+    Write-Verbose 'Downloading latest .NET Runtime...'
+    $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime' -UseBasicParsing).Links.href
+    $latestVer = (($links | Select-String -Pattern '.*runtime.*windows-x64-installer') -replace '.*runtime-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
+    $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*runtime-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
+    $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+}
+
+if ( -not($UsePipKernel) ) {
+    Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
+    $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*UnofficialOriginalBinaries.zip' | Get-Unique)
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Verbose
+    Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
+    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Verbose
 }
 
 $progressPreference = 'Continue'
+
 Write-Verbose 'Installing Python...'
 Start-Process -FilePath (Join-Path $WorkingFolder 'pythoninstaller.exe') -ArgumentList $installOpt -Wait
 if ( $CleanupDownloadFiles ) {
@@ -140,13 +156,10 @@ if ( $InstallGit ) {
 
 Write-Verbose '##### Jupyter Installation #####'
 python -m pip install --upgrade pip
+python -m pip install --upgrade wheel
 python -m pip install jupyter
+python -m pip install notebook
 python -m pip install jupyterlab
-python -m pip install powershell_kernel
-python -m powershell_kernel.install $pyTypeOpt
-$fileContent = Get-Content "$packagePath\powershell_kernel\powershell_proxy.py" -Raw
-$fileContent = $filecontent -replace '\^','\a'
-$filecontent | Set-Content "$packagePath\powershell_kernel\powershell_proxy.py" -Force
 if ( $InstallNBExtensions ) {
     python -m pip install jupyter_nbextensions_configurator
     python -m jupyter nbextensions_configurator enable
@@ -173,19 +186,65 @@ if ( $InstallNIIExtensions ) {
         python -m jupyter nbextension install --py nblineage $pyTypeOpt
     }
 }
-if ( $InstallPowerShell7 ) {
-    Write-Verbose 'Installing PowerShell 7...'
-    Start-Process -FilePath (Join-Path $WorkingFolder 'pwsh.msi') -ArgumentList '/passive' -Wait
-    Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
-    $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
-    $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
-    $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
-    $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
-    if ( $CleanupDownloadFiles ) {
-        Start-Sleep -Seconds 5
-        Remove-Item (Join-Path $WorkingFolder 'pwsh.msi') -Force
+if ( $UsePipKernel ) {
+    python -m pip install powershell_kernel
+    python -m powershell_kernel.install $pyTypeOpt
+    $fileContent = Get-Content "$packagePath\powershell_kernel\powershell_proxy.py" -Raw
+    $fileContent = $filecontent -replace '\^','\a'
+    $filecontent | Set-Content "$packagePath\powershell_kernel\powershell_proxy.py" -Force
+    if ( $InstallPwsh7ForPipKernel ) {
+        Write-Verbose 'Installing PowerShell 7...'
+        Start-Process -FilePath (Join-Path $WorkingFolder 'pwsh.msi') -ArgumentList '/passive' -Wait
+        Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
+        $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
+        $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
+        $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
+        $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
+        if ( $CleanupDownloadFiles ) {
+            Start-Sleep -Seconds 5
+            Remove-Item (Join-Path $WorkingFolder 'pwsh.msi') -Force
+        }
     }
 }
+else {
+    Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
+    $installPath = Join-Path $packagePath 'powershell5_kernel'
+    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -DestinationPath $installPath -Force
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+@"
+{
+  "argv": [
+    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
+    "{connection_file}"
+  ],
+  "display_name": "PowerShell 5",
+  "language": "Powershell"
+}
+"@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
+    if ( $CleanupDownloadFiles ) {
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Force
+   }
+}
+if ( $InstallPwsh7SDK ) {
+    Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
+    $installPath = Join-Path $packagePath 'powershellSDK_kernel'
+    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -DestinationPath $installPath -Force
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
+@"
+{
+  "argv": [
+    "$($installPath.replace('\','/'))/Jupyter_PowerShellSDK.exe",
+    "{connection_file}"
+  ],
+  "display_name": "PowerShell 7 (SDK)",
+  "language": "Powershell"
+}
+"@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
+    if ( $CleanupDownloadFiles ) {
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Force
+    }
+}
+
 if ( $InstallDotnetInteractive ) {
     Write-Verbose 'Installing .NET Core SDK...'
     Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
@@ -198,30 +257,13 @@ if ( $InstallDotnetInteractive ) {
         Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
     }
 }
-if ( $InstallDeepAQKernel ) {
-    Write-Verbose 'Installing DeepAQKernel...'
-    $installPath = Join-Path $packagePath 'powershell_deepaq_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel.zip') -DestinationPath $installPath -Force
-    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell_deepaq\') -Force
-@"
-{
-  "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
-    "{connection_file}"
-  ],
-  "display_name": "$DeepAQKernelName",
-  "language": "Powershell"
-}
-"@ | Set-Content -Path (Join-Path $kernelPath '\powershell_deepaq\kernel.json')
-
+elseif ( $InstallPwsh7SDK ) {
+    Write-Verbose 'Installing .NET Runtime...'
+    Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     if ( $CleanupDownloadFiles ) {
-        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel.zip') -Force
+        Start-Sleep -Seconds 5
+        Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
     }
-}
-if ( $InstallPowerShell7 -or $InstallDeepAQKernel ) {
-    $fileContent = Get-Content (Join-Path $kernelPath '\powershell\kernel.json')
-    $fileContent = $filecontent -replace '"display_name": "PowerShell"', ('"display_name": "' + $ReplacePowershellKernelNameTo + '"')
-    $filecontent | Set-Content (Join-Path $kernelPath '\powershell\kernel.json')
 }
 
 Pop-Location

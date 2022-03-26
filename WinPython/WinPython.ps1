@@ -6,6 +6,7 @@ Param(
     [String]$WinPythonVersion = '3.9',
     [ValidateSet('unmarked','dot','cod','PyPy','dotPyPy','post1')]
     [String]$WinPythonType = 'dot',
+    [Switch]$InstallPwsh7SDK,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
     [Switch]$InstallNIIExtensions,
@@ -21,24 +22,10 @@ Param(
     [String]$WorkingFolder = $PSScriptRoot
 )
 $ErrorActionPreference = 'Stop'
-Write-Verbose ('$WinPythonVersion = ' + $WinPythonVersion)
-Write-Verbose ('$WinPythonType = ' + $WinPythonType)
-Write-Verbose ('$InstallDotnetInteractive = ' + $InstallDotnetInteractive)
-Write-Verbose ('$InstallNBExtensions = ' + $InstallNBExtensions)
-Write-Verbose ('$InstallNIIExtensions = ' + $InstallNIIExtensions)
-Write-Verbose ('$InstallPortableGit = ' + $InstallPortableGit)
-Write-Verbose ('$UsePipKernel = ' + $UsePipKernel)
-Write-Verbose ('$InstallPwsh7ForPipKernel = ' + $InstallPwsh7ForPipKernel)
-Write-Verbose ('$WinPythonPath = ' + $WinPythonPath)
-Write-Verbose ('$NodePath = ' + $NodePath)
-Write-Verbose ('$Pwsh7ForPipKernelPath = ' + $Pwsh7ForPipKernelPath)
-Write-Verbose ('$PortableGitPath = ' + $PortableGitPath)
-Write-Verbose ('$WorkingFolder = ' + $WorkingFolder)
-Write-Verbose ('$CleanupDownloadFiles = ' + $CleanupDownloadFiles)
 Push-Location $WorkingFolder
 $osBits = ( [System.IntPtr]::Size*8 ).ToString()
 
-if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -or (-not($InstallPortableGit)) ) {
+if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -and (-not($InstallPortableGit)) ) {
     if ( $InstallNIIExtensions ) {
         throw 'You need git or InstallPortableGit option for InstallNIIExtensions option.'
     }
@@ -96,6 +83,14 @@ if ( $InstallDotnetInteractive ) {
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+}
+elseif ( $InstallPwsh7SDK ) {
+    Write-Verbose 'Downloading latest .NET Runtime...'
+    $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime' -UseBasicParsing).Links.href
+    $latestVer = (($links | Select-String -Pattern '.*runtime.*windows-x64-installer') -replace '.*runtime-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
+    $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*runtime-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
+    $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 
 if ( -not($UsePipKernel) ) {
@@ -241,7 +236,12 @@ else {
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
-
+    if ( $CleanupDownloadFiles ) {
+        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Force
+    }
+}
+if ( $InstallPwsh7SDK ) {
+    $packagePath = Join-Path $wpRoot (Get-ChildItem $wpRoot -Filter "python-$WinPythonVersion*" -Name) | Join-Path -ChildPath '\Lib\site-packages'
     Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -DestinationPath $installPath -Force
@@ -256,20 +256,26 @@ else {
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
-
     if ( $CleanupDownloadFiles ) {
-        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Force
         Remove-Item (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Force
     }
 }
 
 if ( $InstallDotnetInteractive ) {
-    Write-Verbose 'Installing .NET Core SDK...'
+    Write-Verbose 'Installing .NET SDK...'
     Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     Write-Output 'Installing .NET Interactive...'
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
+    if ( $CleanupDownloadFiles ) {
+        Start-Sleep -Seconds 5
+        Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
+    }
+}
+elseif ( $InstallPwsh7SDK ) {
+    Write-Verbose 'Installing .NET Runtime...'
+    Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     if ( $CleanupDownloadFiles ) {
         Start-Sleep -Seconds 5
         Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
@@ -281,7 +287,7 @@ if ( $AddStartMenu ) {
     New-Item -Path $shortcutPath -ItemType Directory -Force
     $wshShell = New-Object -comObject WScript.Shell
     Get-ChildItem -Path $wpRoot -Filter '*.exe' | ForEach-Object {
-        $Shortcut = $WshShell.CreateShortcut("$shortcutPath\$($_.Name).lnk")
+        $Shortcut = $WshShell.CreateShortcut("$shortcutPath\$($_.Name -replace '.exe','').lnk")
         $Shortcut.TargetPath = $_.FullName
         $Shortcut.Save()    
     }    
@@ -296,5 +302,6 @@ if ( $AddStartMenu ) {
         $filecontent | Set-Content $_
     }
 }
+
 Pop-Location
 Write-Host 'Done, It may require reboot to some function(s).' -ForegroundColor Green

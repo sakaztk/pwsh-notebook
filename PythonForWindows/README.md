@@ -12,6 +12,7 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 - [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5) (Optional)
+- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
 
 ## Installations
 .\WinPython.ps1 [Script Option(s)]
@@ -23,10 +24,10 @@ Mandatory: No
 Default: 3.8  
 e.g.: .\WinPython.ps1 -PythonVersion 3.9
 
-- InstallPowerShell7  
-This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options.  
+- UsePipKernel  
+This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
 Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallPowerShell7
+e.g.: .\WinPython.ps1 -UsePipKernel
 
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
@@ -48,11 +49,6 @@ This switch option will install [.Net Interactive](https://github.com/dotnet/int
 Mandatory: No  
 e.g.: .\WinPython.ps1 -InstallDotnetInteractive
 
-- InstallDeepAQKernel
-This switch option will install [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallDeepAQKernel
-
 - CleanupDownloadFiles  
 This switch option will delete downloaded files after installations.  
 Mandatory: No  
@@ -63,11 +59,3 @@ Specify the working folder in this script.
 Default: $PSScriptRoot (Same folder as this script)  
 Mandatory: No  
 e.g.: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
-
-Use following option if you install all softwares  
-.\WinPython.ps1 -InstallPowerShell7 -InstallNBExtensions -InstallNIIExtensions -InstallGit -InstallDotnetInteractive -InstallDeepAQKernel
-
-## Run the Jupyter Notebook
-```
-chcp 65001; python -m jupyter notebook
-```
