@@ -21,8 +21,8 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - PythonVersion  
 Specify version of the Python for Windows.  
 Mandatory: No  
-Default: 3.8  
-e.g.: .\WinPython.ps1 -PythonVersion 3.9
+Default: 3.9  
+e.g.: .\WinPython.ps1 -PythonVersion 3.10
 
 - UsePipKernel  
 This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  

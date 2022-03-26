@@ -18,13 +18,13 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 .\WinPython.ps1 [Script Option(s)]
 ## Script Options
 - WinPythonVersion  
-Specify version of the WinPython. (Version 3.8 or 3.9)  
+Specify version of the WinPython.  
 Mandatory: No  
-Default: 3.8  
-e.g.: .\WinPython.ps1 -WinPythonVersion 3.9
+Default: 3.9  
+e.g.: .\WinPython.ps1 -WinPythonVersion 3.10  
 
 - WinPythonType  
-Specify type of the WinPython. (unmarked, dot or cod)  
+Specify type of the WinPython.   
 Mandatory: No  
 Default: dot 
 e.g.: .\WinPython.ps1 -WinPythonType cod
