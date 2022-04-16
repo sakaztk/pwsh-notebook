@@ -1,4 +1,4 @@
-FROM jupyter/minimal-notebook:ubuntu-18.04
+FROM jupyter/minimal-notebook:ubuntu-20.04
 
 USER root
 
@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     openssl \
     ssh \
+    supervisor \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -22,22 +23,26 @@ RUN add-apt-repository universe \
     apt-transport-https \
  && apt-get install -y --no-install-recommends \
     powershell \
-    dotnet-sdk-5.0 \
+    dotnet-sdk-6.0 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q https://github.com/microsoft/omi/releases/download/v1.6.8-0/omi-1.6.8-0.ssl_110.ulinux.x64.deb \
- && dpkg -i omi-1.6.8-0.ssl_110.ulinux.x64.deb \
- && rm omi-1.6.8-0.ssl_110.ulinux.x64.deb
+RUN wget -q https://github.com/microsoft/omi/releases/download/v1.6.8-1/omi-1.6.8-1.ssl_110.ulinux.x64.deb \
+ && dpkg -i omi-1.6.8-1.ssl_110.ulinux.x64.deb \
+ && rm omi-1.6.8-1.ssl_110.ulinux.x64.deb
+
+RUN wget -q https://github.com/PowerShell/psl-omi-provider/releases/download/v1.4.2-2/psrp-1.4.2-2.universal.x64.deb \
+ && dpkg -i psrp-1.4.2-2.universal.x64.deb \
+ && rm psrp-1.4.2-2.universal.x64.deb
 
 RUN dotnet tool install --global --add-source 'https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json' Microsoft.dotnet-interactive
 ENV PATH $PATH:~/.dotnet/tools
 RUN dotnet interactive jupyter install
 
 # Powershell DSC Core
-RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.2.1-0/dsc-1.2.1-0.ssl_100.x64.deb --no-check-certificate \
- && dpkg -i dsc-1.2.1-0.ssl_100.x64.deb \
- && rm dsc-1.2.1-0.ssl_100.x64.deb
+RUN wget https://github.com/microsoft/PowerShell-DSC-for-Linux/releases/download/v1.2.2-0/dsc-1.2.2-0.ssl_100.x64.deb --no-check-certificate \
+ && dpkg -i dsc-1.2.2-0.ssl_100.x64.deb \
+ && rm dsc-1.2.2-0.ssl_100.x64.deb
 
 # Configure SSH
 RUN ssh-keygen -A \
@@ -80,9 +85,13 @@ RUN jupyter nbextension install --py lc_run_through --sys-prefix \
  && jupyter nbextension install --py nbsearch --sys-prefix \
  && jupyter nbextension install --py nblineage --sys-prefix
 
-RUN fix-permissions /home/$NB_USER
-
-RUN mkdir -p /usr/local/bin/start-notebook.d
-COPY start.sh /usr/local/bin/start-notebook.d
+RUN echo '[supervisord]' >> /etc/supervisord.conf && \
+    echo 'nodaemon=true' >> /etc/supervisord.conf && \
+    echo '[program:sshd]' >> /etc/supervisord.conf && \
+    echo 'command=/usr/sbin/sshd -D' >> /etc/supervisord.conf && \
+    echo '[program:omid]' >> /etc/supervisord.conf && \
+    echo 'command=/opt/omi/bin/omiserver -d' >> /etc/supervisord.conf && \
+    echo '[program:notebook]' >> /etc/supervisord.conf && \
+    echo "command=/opt/conda/bin/jupyter-notebook  --NotebookApp.token='' --allow-root" >> /etc/supervisord.conf
 
 USER $NB_USER
