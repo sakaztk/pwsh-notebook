@@ -18,12 +18,12 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 ## Script Options
  - InstallationType [Computer | User]   
 Specify insatallation target to the Computer(All Users) or a User(Just Me).  
+Mandatory: No  
 Default: Computer  
 e.g.: .\Miniconda.ps1 -InstallationType User
 
 - UsePipKernel  
 This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
-Mandatory: No  
 e.g.: .\WinPython.ps1 -UsePipKernel
 
 - InstallNBExtensions  
@@ -44,5 +44,6 @@ e.g.: .\Miniconda.ps1 -DoNotCleanupDownloadFiles
 
 - WorkingFolder [Folder Path]  
 Specify the working folder in this script.
+Mandatory: No  
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Miniconda.ps1 -WorkingFolder C:\pathto\folder

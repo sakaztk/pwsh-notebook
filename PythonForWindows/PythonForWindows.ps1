@@ -17,6 +17,8 @@ Param(
 )
 $ErrorActionPreference = 'Stop'
 Push-Location $WorkingFolder
+chcp 65001
+$OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
 
 if ( ($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; git --version} -ErrorAction SilentlyContinue)) -and (-not($InstallGit)) ) {
     if ( $InstallNIIExtensions ) {

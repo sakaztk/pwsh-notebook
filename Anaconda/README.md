@@ -18,23 +18,21 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 ## Script Options
  - InstallationType [Computer | User]   
 Specify insatallation target to the Computer(All Users) or a User(Just Me).  
+Mandatory: No  
 Default: Computer  
 e.g.: .\Anaconda.ps1 -InstallationType User
 
 - UsePipKernel  
 This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -UsePipKernel
+e.g.: .\Anaconda.ps1 -UsePipKernel
 
 - InstallPwsh7SDK  
 This switch option will install [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallPwsh7SDK
+e.g.: .\Anaconda.ps1 -InstallPwsh7SDK
 
 - InstallPwsh7ForPipKernel  
 This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options with [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -UsePipKernel -InstallPwsh7ForPipKernel
+e.g.: .\Anaconda.ps1 -UsePipKernel -InstallPwsh7ForPipKernel
 
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
@@ -46,8 +44,7 @@ e.g.: .\Anaconda.ps1 -InstallNIIExtensions
 
 - InstallDotnetInteractive  
 This switch option will install [.Net Interactive](https://github.com/dotnet/interactive).  
-Mandatory: No  
-e.g.: .\WinPython.ps1 -InstallDotnetInteractive
+e.g.: .\Anaconda.ps1 -InstallDotnetInteractive
 
 - CleanupDownloadFiles  
 This switch option will delete downloaded files after installations.  
@@ -55,5 +52,6 @@ e.g.: .\Anaconda.ps1 -DoNotCleanupDownloadFiles
 
 - WorkingFolder [Folder Path]  
 Specify the working folder in this script.
+Mandatory: No  
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Anaconda.ps1 -WorkingFolder C:\pathto\folder
