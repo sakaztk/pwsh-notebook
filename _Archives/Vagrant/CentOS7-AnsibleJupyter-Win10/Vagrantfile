@@ -1,0 +1,55 @@
+Vagrant.configure("2") do |config|
+
+  config.vm.define :centos7 do |ansible|
+    ansible.vm.box = "centos/7"
+    ansible.vm.network :private_network, ip: "192.168.33.11", virtualbox__intnet: "ansjup-test"
+    ansible.vm.network "forwarded_port", guest: 8888, host: 8888
+    ansible.vm.synced_folder "./notebooks", "/home/vagrant/notebooks", owner: "vagrant", group: "vagrant"
+    ansible.vm.provision "shell", inline: <<-SHELL
+      yum -y update
+      yum -y install epel-release
+      yum -y install ansible --enablerepo=epel
+
+      yum -y install python python-pip --enablerepo=epel
+      pip install --upgrade pip
+      #pip install pywinrm
+      #pip install jupyter
+
+      yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+      yum install -y python36u python36u-pip python36u-devel
+      python3.6 -m pip install --upgrade pip
+      python3.6 -m pip install pywinrm
+      python3.6 -m pip install jupyter
+
+      mv /etc/ansible/hosts /etc/ansible/hosts.org
+      cp /vagrant/hosts /etc/ansible/
+    SHELL
+
+    ansible.vm.provision "shell", privileged: false, inline: <<-SHELL
+      jupyter notebook --generate-config -y
+      echo "c.NotebookApp.notebook_dir = '/home/vagrant/notebooks/'" >> $HOME/.jupyter/jupyter_notebook_config.py
+      echo "c.NotebookApp.token = 'jupytertoken'" >> $HOME/.jupyter/jupyter_notebook_config.py
+    SHELL
+
+    ansible.vm.provision "shell", privileged: false, run: "always", inline: <<-SHELL
+      nohup jupyter notebook --no-browser --ip=0.0.0.0 2>&1 &
+    SHELL
+  end
+
+  config.vm.define :windows10 do |win10|
+    win10.vm.box = "win10-ansible"
+    win10.vm.guest = :windows
+    win10.vm.communicator = "winrm"
+    win10.vm.network :forwarded_port, guest: 3389, host: 13389
+    win10.vm.network :forwarded_port, guest: 5985, host: 15985, id: "winrm", auto_correct: true
+    win10.vm.network :private_network, ip: "192.168.33.12", virtualbox__intnet: "ansjup-test"
+    win10.vm.provider "virtualbox" do |vb|
+      vb.gui = true
+      vb.customize ["modifyvm", :id, "--paravirtprovider", "hyperv"]
+    end
+
+    win10.winrm.username = "IEUser"
+    win10.winrm.password = "Passw0rd!"
+
+  end
+end
