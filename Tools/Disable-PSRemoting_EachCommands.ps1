@@ -1,4 +1,4 @@
-Set-Item WSMan:\localhost\Client\TrustedHosts -Value '' -Force -PassThru
+Set-Service -Name WinRM -StartupType Manual -PassThru
 Stop-Service -Name WinRM -PassThru
 Disable-NetFirewallRule -Name WINRM-HTTP-In-TCP -PassThru
 Disable-NetFirewallRule -Name WINRM-HTTP-In-TCP-NoScope -PassThru
