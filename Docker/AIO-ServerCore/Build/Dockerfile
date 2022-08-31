@@ -40,20 +40,20 @@ RUN dotnet tool install --global Microsoft.dotnet-interactive
 RUN $env:Path += ';C:\Users\ContainerAdministrator\.dotnet\tools'
 RUN dotnet interactive jupyter install
 
-RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/Original(Unofficial)/UnofficialOriginalBinaries.zip' -UseBasicParsing -OutFile 'DeepAQKernel5.zip' -Verbose
-RUN Expand-Archive 'DeepAQKernel5.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershell5_kernel')
+RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/v7.2.6.0/Jupyter-PowerShell5.zip' -UseBasicParsing -OutFile 'PowerShell5.zip' -Verbose
+RUN Expand-Archive 'PowerShell5.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershell5_kernel')
 RUN New-Item -ItemType Directory -Path (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\share\jupyter\kernels\powershell5')
 RUN Split-Path (python -c 'import sys; print(sys.executable)') -Parent | Foreach-Object { `
     Write-Output ('{"""argv""":["""' + (Join-Path $_ '\Lib\site-packages\powershell5_kernel').replace('\','/') + '/Jupyter_PowerShell5.exe""","""{connection_file}"""], """display_name""": """PowerShell 5""","""language""": """Powershell"""}') | `
     Set-Content -Path (Join-Path $_ '\share\jupyter\kernels\powershell5\kernel.json') }
-RUN Remove-Item 'DeepAQKernel5.zip' -Force
+RUN Remove-Item 'PowerShell5.zip' -Force
 
-RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/v7.2.2.0/Jupyter-PowerShellSDK-7.2.2.0.zip' -UseBasicParsing -OutFile 'DeepAQKernelSDK.zip' -Verbose
-RUN Expand-Archive 'DeepAQKernelSDK.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershellSDK_kernel')
+RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/v7.2.6.0/Jupyter-PowerShellSDK-7.2.6.0.zip' -UseBasicParsing -OutFile 'PowerShellSDK.zip' -Verbose
+RUN Expand-Archive 'PowerShellSDK.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershellSDK_kernel')
 RUN New-Item -ItemType Directory -Path (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\share\jupyter\kernels\powershellSDK')
 RUN Split-Path (python -c 'import sys; print(sys.executable)') -Parent | Foreach-Object { `
     Write-Output ('{"""argv""":["""' + (Join-Path $_ '\Lib\site-packages\powershellSDK_kernel').replace('\','/') + '/Jupyter_PowerShellSDK.exe""","""{connection_file}"""], """display_name""": """PowerShell 7 (SDK)""","""language""": """Powershell"""}') | `
     Set-Content -Path (Join-Path $_ '\share\jupyter\kernels\powershellSDK\kernel.json') }
-RUN Remove-Item 'DeepAQKernelSDK.zip' -Force
+RUN Remove-Item 'PowerShellSDK.zip' -Force
 
 EXPOSE 8888

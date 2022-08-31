@@ -49,22 +49,26 @@ switch ($installationType) {
     }
 }
 
-$progressPreference = 'silentlyContinue'
+if ($ProgressPreference -ne 'SilentlyContinue') {
+    Write-Verbose 'Change $ProgressPreference to SilentlyContinue.'
+    $exProgressPreference = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
+}
 
 Write-Verbose 'Downloading latest Miniconda...'
 $fileUri = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe'
 Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'miniconda.exe') -Verbose
 
-if ( $InstallPwsh7ForPipKernel ) {
+if ($InstallPwsh7ForPipKernel) {
     Write-Verbose 'Downloading latest PowerShell 7...'
     $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
     $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
+    $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
     Write-Verbose "Download from $fileUri"
     Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
 }
 
-if ( $InstallDotnetInteractive ) {
+if ($InstallDotnetInteractive) {
     Write-Verbose 'Downloading latest .NET SDK...'
     $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
     $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
@@ -81,19 +85,22 @@ else {
     Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 
-if ( -not($UsePipKernel) ) {
+if (-not($UsePipKernel)) {
     Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
     $links = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/tag/Original(Unofficial)' -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*UnofficialOriginalBinaries.zip' | Get-Unique)
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Verbose
+    $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*UnofficialOriginalBinaries.zip' | Get-Unique)
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose
     Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
     $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
     $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Verbose
+    $fileUri = 'https://github.com' + ($links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose
 }
 
-$progressPreference = 'Continue'
+if ($null -ne $exProgressPreference) {
+    Write-Verbose "Restore $ProgressPreference to $exProgressPreference"
+    $ProgressPreference = $exProgressPreference
+}
 
 Write-Verbose 'Installing Miniconda...'
 $process = Start-Process -FilePath 'miniconda.exe' -ArgumentList $condaOpt -PassThru
@@ -105,7 +112,7 @@ for($i = 0; $i -le 100; $i = ($i + 1) % 100) {
         break
     }
 }
-if ( $CleanupDownloadFiles ) {
+if ($CleanupDownloadFiles) {
     Start-Sleep -Seconds 5
     Remove-Item 'miniconda.exe' -Force
 }
@@ -119,13 +126,13 @@ conda install -y notebook
 conda install -y jupyterlab
 conda install -y -c conda-forge nodejs
 
-if ( $InstallNBExtensions ) {
+if ($InstallNBExtensions) {
     conda install -y -c conda-forge jupyter_nbextensions_configurator
     jupyter nbextensions_configurator enable
     pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
     jupyter contrib nbextension install $pyTypeOpt    
 }
-if ( $InstallNIIExtensions ) {
+if ($InstallNIIExtensions) {
     conda install -y git
     pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
     pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
@@ -135,7 +142,7 @@ if ( $InstallNIIExtensions ) {
     pip install git+https://github.com/NII-cloud-operation/sidestickies
     pip install git+https://github.com/NII-cloud-operation/nbsearch
     pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-    if ( $InstallNBExtensions ) {
+    if ($InstallNBExtensions) {
         jupyter nbextension install --py lc_run_through $pyTypeOpt
         jupyter nbextension install --py lc_wrapper $pyTypeOpt
         jupyter nbextension install --py lc_multi_outputs $pyTypeOpt
@@ -146,10 +153,10 @@ if ( $InstallNIIExtensions ) {
         jupyter nbextension install --py nblineage $pyTypeOpt
     }
 }
-if ( $UsePipKernel ) {
+if ($UsePipKernel) {
     pip install powershell_kernel
     python -m powershell_kernel.install $pyTypeOpt
-    if ( $InstallPwsh7ForPipKernel ) {
+    if ($InstallPwsh7ForPipKernel) {
         Write-Verbose 'Installing PowerShell 7...'
         Start-Process -FilePath 'pwsh.msi' -ArgumentList '/passive' -Wait
         Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
@@ -157,7 +164,7 @@ if ( $UsePipKernel ) {
         $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
         $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
         $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
-        if ( $CleanupDownloadFiles ) {
+        if ($CleanupDownloadFiles) {
             Start-Sleep -Seconds 5
             Remove-Item 'pwsh.msi' -Force
         }
@@ -166,7 +173,7 @@ if ( $UsePipKernel ) {
 else {
     Write-Verbose 'Installing DeepAQ pwsh5 Kernel...'
     $installPath = Join-Path $packagePath 'powershell5_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -DestinationPath $installPath -Force
+    Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
 @"
 {
@@ -178,14 +185,14 @@ else {
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
-    if ( $CleanupDownloadFiles ) {
-        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernel5.zip') -Force
+    if ($CleanupDownloadFiles) {
+        Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force
     }
 }
-if ( $InstallPwsh7SDK ) {
+if ($InstallPwsh7SDK) {
     Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -DestinationPath $installPath -Force
+    Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
 @"
 {
@@ -198,27 +205,27 @@ if ( $InstallPwsh7SDK ) {
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
 
-    if ( $CleanupDownloadFiles ) {
-        Remove-Item (Join-Path $WorkingFolder 'DeepAQKernelSDK.zip') -Force
+    if ($CleanupDownloadFiles) {
+        Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force
     }
 }
 
-if ( $InstallDotnetInteractive ) {
+if ($InstallDotnetInteractive) {
     Write-Verbose 'Installing .NET Core SDK...'
     Start-Process -FilePath 'dotnet.exe' -ArgumentList '/install /passive /norestart' -Wait
     Write-Verbose 'Installing .NET Interactive...'
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
     dotnet interactive jupyter install --path "$kernelPath"
-    if ( $CleanupDownloadFiles ) {
+    if ($CleanupDownloadFiles) {
         Start-Sleep -Seconds 5
         Remove-Item 'dotnet.exe' -Force
     }
 }
-elseif ( $InstallPwsh7SDK ) {
+elseif ($InstallPwsh7SDK) {
     Write-Verbose 'Installing .NET Runtime...'
     Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
-    if ( $CleanupDownloadFiles ) {
+    if ($CleanupDownloadFiles) {
         Start-Sleep -Seconds 5
         Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
     }
