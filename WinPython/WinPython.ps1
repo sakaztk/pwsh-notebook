@@ -44,8 +44,10 @@ if ($WinPythonType -eq 'unmarked') {
 else {
     $pattern = $osBits + '-' + $WinPythonVersion + '.*' + $WinPythonType + '\.exe'
 }
-$latestRelease = (Invoke-WebRequest 'https://github.com/winpython/winpython/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-$links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+$releaseURI = 'https://github.com/winpython/winpython/releases'
+$latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+$versionString = $latestRelease -replace '.*tag/(.*)', '$1'
+$links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
 Write-Verbose ('$pattern = ' + $pattern)
 Try {
     $fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
@@ -64,16 +66,20 @@ Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\node.zip')
 
 if ($InstallPortableGit) {
     Write-Verbose 'Downloading latest PortableGit...'
-    $latestRelease = (Invoke-WebRequest 'https://github.com/git-for-windows/git/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $links = (Invoke-WebRequest -uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $releaseURI = 'https://github.com/git-for-windows/git/releases'
+    $latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $versionString = $latestRelease -replace '.*tag/(.*)', '$1'
+    $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     $fileUri = ($links | Select-String -Pattern ".*PortableGit.*$osBits.*\.exe" | Get-Unique).Tostring().Trim()
     Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $WorkingFolder 'PortableGit.exe') -Verbose
 }
 
 if ($InstallPwsh7ForPipKernel) {
     Write-Verbose 'Downloading latest PowerShell 7...'
-    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/PowerShell/PowerShell/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
+    $releaseURI = 'https://github.com/PowerShell/PowerShell/releases'
+    $latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $versionString = $latestRelease -replace '.*tag/(.*)', '$1'
+    $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*x64.zip' | Get-Unique).Tostring().Trim()
     $pwsh7Root = Join-Path $Pwsh7ForPipKernelPath 'Latest'
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.zip') -Verbose
@@ -98,15 +104,15 @@ elseif ($InstallPwsh7SDK) {
 }
 
 if (-not($UsePipKernel)) {
+    $releaseURI = 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases'
+    $latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+    $versionString = $latestRelease -replace '.*tag/(.*)', '$1'
+    $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
-    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*PowerShell5.zip' | Get-Unique).Tostring().Trim()
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose
     Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
-    $latestRelease = (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $links = (Invoke-WebRequest -Uri "https://github.com$($latestRelease)" -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ($links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
+    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
     Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose
 }
 
