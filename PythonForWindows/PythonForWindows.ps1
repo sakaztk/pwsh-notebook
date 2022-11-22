@@ -75,7 +75,7 @@ $links = (Invoke-WebRequest -uri 'https://www.python.org/downloads/windows/' -Us
 $targetLinks = $links | Select-String -Pattern ".*python-($PythonVersion\.\d*)-amd64.exe"
 $latestVer = $PythonVersion + '.' + ($targetLinks -replace ".*python-$PythonVersion\.(\d*)-amd64.exe", '$1'| Measure-Object -Maximum).Maximum
 $fileUri = ($targetLinks | Select-String -Pattern ".*python-$latestVer-amd64.exe" | Get-Unique).Tostring().Trim()
-Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pythoninstaller.exe') -Verbose
+Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'pythoninstaller.exe') -Verbose
 
 Write-Verbose 'Downloading latest Node.js...'
 $links = (Invoke-WebRequest -uri 'https://nodejs.org/en/download/' -UseBasicParsing).Links.href
@@ -90,7 +90,7 @@ if ($InstallGit) {
     $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*64-bit.exe' | Get-Unique).Tostring().Trim()
     Write-Verbose "Download from $fileUri"
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'gitinstaller.exe') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'gitinstaller.exe') -Verbose
 }
 
 if ($InstallPwsh7ForPipKernel) {
@@ -101,7 +101,7 @@ if ($InstallPwsh7ForPipKernel) {
     $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
     Write-Verbose "Download from $fileUri"
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
 }
 
 if ($InstallDotnetInteractive) {
@@ -110,15 +110,15 @@ if ($InstallDotnetInteractive) {
     $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 else {
     Write-Verbose 'Downloading latest .NET Runtime...'
-    $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime' -UseBasicParsing).Links.href
+    $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/en-us/download/dotnet/7.0/runtime' -UseBasicParsing).Links.href
     $latestVer = (($links | Select-String -Pattern '.*runtime.*windows-x64-installer') -replace '.*runtime-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*runtime-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
 }
 
 if (-not($UsePipKernel)) {
@@ -128,10 +128,10 @@ if (-not($UsePipKernel)) {
     $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
     Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*PowerShell5.zip' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose
     Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
     $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing  -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose
+    Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose
 }
 
 if ($null -ne $exProgressPreference) {
