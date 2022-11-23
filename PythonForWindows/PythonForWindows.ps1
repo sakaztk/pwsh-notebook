@@ -2,8 +2,8 @@
 [CmdletBinding()]
 Param(
     [String]$InstallationType = 'Computer',
-    [ValidateSet('2.7','3.6','3.7','3.8','3.9','3.10')]
-    [String]$PythonVersion = '3.9',
+    [ValidateSet('3.7','3.8','3.9','3.10','3.11')]
+    [String]$PythonVersion = '3.11',
     [String]$OverwriteInstallOptionsTo = '',
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallGit,
@@ -221,7 +221,7 @@ if ($UsePipKernel) {
     }
 }
 else {
-    Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
+    Write-Verbose 'Installing DeepAQ pwsh5 Kernel...'
     $installPath = Join-Path $packagePath 'powershell5_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
