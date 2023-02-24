@@ -89,6 +89,10 @@ RUN echo '[supervisord]' >> /etc/supervisord.conf && \
     echo '[program:omid]' >> /etc/supervisord.conf && \
     echo 'command=/opt/omi/bin/omiserver' >> /etc/supervisord.conf && \
     echo '[program:notebook]' >> /etc/supervisord.conf && \
-    echo "command=/opt/conda/bin/jupyter-notebook  --NotebookApp.token='' --allow-root" >> /etc/supervisord.conf
+    echo "command=/opt/conda/bin/jupyter-notebook  --NotebookApp.token='' --allow-root" >> /etc/supervisord.conf && \
+    echo 'stdout_logfile=/dev/stdout' >> /etc/supervisord.conf && \
+    echo 'stdout_logfile_maxbytes=0' >> /etc/supervisord.conf && \
+    echo 'stderr_logfile=/dev/stderr' >> /etc/supervisord.conf && \
+    echo 'stderr_logfile_maxbytes=0' >> /etc/supervisord.conf
 
 USER $NB_USER
