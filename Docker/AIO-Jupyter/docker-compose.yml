@@ -11,4 +11,4 @@ services:
       GRANT_SUDO: "yes"
     volumes:
       - ./volumes/notebooks:/home/jovyan/notebooks
-    command: "start.sh jupyter-notebook --NotebookApp.token=''"
+    command: "/usr/bin/supervisord"
