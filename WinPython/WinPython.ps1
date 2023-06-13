@@ -2,8 +2,8 @@
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 Param(
-    [ValidateSet('3.7','3.8','3.9','3.10')]
-    [String]$WinPythonVersion = '3.9',
+    [ValidateSet('3.7','3.8','3.9','3.10','3.11')]
+    [String]$WinPythonVersion = '3.11',
     [ValidateSet('unmarked','dot','cod','PyPy','dotPyPy','post1')]
     [String]$WinPythonType = 'dot',
     [Switch]$InstallPwsh7SDK,
@@ -15,9 +15,9 @@ Param(
     [Switch]$InstallPwsh7ForPipKernel,
     [Switch]$AddStartMenu,
     [String]$WinPythonPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython'),
-    [String]$NodePath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\node'),
-    [String]$Pwsh7ForPipKernelPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\pwsh7'),
-    [String]$PortableGitPath = (Join-Path $env:LOCALAPPDATA 'Programs\WinPython\PortableGit'),
+    [String]$NodePath = (Join-Path $WinPythonPath 'node'),
+    [String]$Pwsh7ForPipKernelPath = (Join-Path $WinPythonPath 'pwsh7'),
+    [String]$PortableGitPath = (Join-Path $WinPythonPath 'PortableGit'),
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
 )
