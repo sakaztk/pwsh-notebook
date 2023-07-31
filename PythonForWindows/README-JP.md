@@ -21,7 +21,7 @@
 - PythonVersion  
 Python for Windowsのバージョンを指定します。  
 必須: いいえ  
-デフォルト: 3.9  
+デフォルト: 3.11  
 例: .\WinPython.ps1 -PythonVersion 3.10
 
 - UsePipKernel  
@@ -45,7 +45,7 @@ Python for Windowsのバージョンを指定します。
 例: .\WinPython.ps1 -InstallDotnetInteractive
 
 - CleanupDownloadFiles  
-このスイッチオプションを指定すると、インストール後にダウンロードしたファイルを削除します。
+このスイッチオプションを指定すると、インストール後にダウンロードしたファイルを削除します。  
 例: .\WinPython.ps1 -DoNotCleanupDownloadFiles
 
 - WorkingFolder [Folder Path]  

@@ -21,7 +21,7 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - PythonVersion  
 Specify version of the [Python for Windows](https://www.python.org/).  
 Mandatory: No  
-Default: 3.9  
+Default: 3.11  
 e.g.: .\WinPython.ps1 -PythonVersion 3.10
 
 - UsePipKernel  
