@@ -6,6 +6,7 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 ## Ways of installing
 * [Anaconda](./Anaconda/)
 * [Miniconda](./Miniconda/)
+* [Miniforge](./Miniforge/)
 * [Python for Windows](./PythonForWindows/)
 * [WinPython](./WinPython/)
 * [Docker](./Docker/)

@@ -144,11 +144,14 @@ $nodeEnvPath = join-path $nodePath 'Latest'
 New-Item -ItemType SymbolicLink -Path $nodeEnvPath -Target (join-path $nodePath $nodeFolder) -Force
 . (join-path $nodeEnvPath "nodevars.bat")
 $env:Path += (';' + $nodeEnvPath)
+if ($NodePath -eq (Join-Path $WinPythonPath 'node')) {
+    $nodeEnvPath = '%WINPYDIRBASE%\..\node\Latest'
+}
 @"
 set NODEPATH=$nodeEnvPath
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%NODEPATH%\;" >nul
 if %ERRORLEVEL% NEQ 0 (
-   set "PATH=%PATH%;%NODEPATH%\;"
+    set "PATH=%PATH%;%NODEPATH%\;"
 )
 
 "@ | Add-Content -Path "$wpRoot\scripts\env.bat"
@@ -167,6 +170,9 @@ if ($InstallPortableGit) {
         Remove-Item (Join-Path $WorkingFolder 'PortableGit.exe') -Force
     }
     $env:Path += ";$gitEnvPath"
+    if ($PortableGitPath -eq (Join-Path $WinPythonPath 'PortableGit')) {
+        $gitEnvPath = '%WINPYDIRBASE%\..\PortableGit\cmd'
+    }
 @"
 set GITPATH=$gitEnvPath
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%GITPATH%\;" >nul
