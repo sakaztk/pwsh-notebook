@@ -25,7 +25,7 @@ $ErrorActionPreference = 'Stop'
 Push-Location $WorkingFolder
 $osBits = ([System.IntPtr]::Size*8).ToString()
 
-if (($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> null} -ErrorAction SilentlyContinue)) -and (-not($InstallPortableGit))) {
+if (($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> $null} -ErrorAction SilentlyContinue)) -and (-not($InstallPortableGit))) {
     if ($InstallNIIExtensions) {
         throw 'You need git or InstallPortableGit option for InstallNIIExtensions option.'
     }
@@ -58,10 +58,11 @@ Catch {
 Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $WorkingFolder 'Winpython.exe') -Verbose
 $wpVer = $fileUri -replace ".*-((\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)).*\.exe",'$1'
 
-Write-Verbose 'Downloading latest Node.js...'
-$links = (Invoke-WebRequest -uri 'https://nodejs.org/ja/download/' -UseBasicParsing).Links.href
+Write-Verbose 'Downloading Node.js...'
+$releaseURI = 'https://nodejs.org/download/release/latest-v18.x'
+$links = (Invoke-WebRequest -uri $releaseURI -UseBasicParsing).Links.href
 $pattern = "win-x$osBits.*\.zip"
-$fileUri = ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
+$fileUri = "$releaseURI/" + ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
 Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\node.zip')
 
 if ($InstallPortableGit) {

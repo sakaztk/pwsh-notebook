@@ -77,9 +77,10 @@ $latestVer = $PythonVersion + '.' + ($targetLinks -replace ".*python-$PythonVers
 $fileUri = ($targetLinks | Select-String -Pattern ".*python-$latestVer-amd64.exe" | Get-Unique).Tostring().Trim()
 Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'pythoninstaller.exe') -Verbose
 
-Write-Verbose 'Downloading latest Node.js...'
-$links = (Invoke-WebRequest -uri 'https://nodejs.org/en/download/' -UseBasicParsing).Links.href
-$fileUri = ($links | Select-String -Pattern "x64\.msi" | Get-Unique).Tostring().Trim()
+Write-Verbose 'Downloading Node.js...'
+$releaseURI = 'https://nodejs.org/download/release/latest-v18.x'
+$links = (Invoke-WebRequest -uri $releaseURI -UseBasicParsing).Links.href
+$fileUri = "$releaseURI/" + ($links | Select-String -Pattern "x64\.msi" | Get-Unique).Tostring().Trim()
 Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\nodeinstaller.msi')
 
 if ($InstallGit) {
