@@ -125,8 +125,7 @@ if ($null -ne $exProgressPreference) {
 Write-Verbose 'Installing WinPython...'
 New-Item -Path $WinPythonPath -ItemType Directory -Force
 Start-Process -FilePath (Join-Path $WorkingFolder 'Winpython.exe') -ArgumentList ('-y -o"' + $WinPythonPath + '"') -wait
-$wpRoot = (Join-Path $WinPythonPath 'Latest')
-New-Item -ItemType SymbolicLink -Path $wpRoot -Target (Join-Path $WinPythonPath "WPy$osBits-$($wpVer -replace('\.',''))") -Force
+$wpRoot = (Join-Path $WinPythonPath "WPy$osBits-$($wpVer -replace('\.',''))")
 
 $kernelPath = Join-Path $wpRoot '\settings\kernels'
 if ($CleanupDownloadFiles) {
@@ -247,10 +246,20 @@ else {
     $installPath = Join-Path $packagePath 'powershell5_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+
+@"
+set PS5KPATH=%WINPYDIR%\Lib\site-packages\powershell5_kernel
+echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%PS5KPATH%\;" >nul
+if %ERRORLEVEL% NEQ 0 (
+    set "PATH=%PATH%;%PS5KPATH%\;"
+)
+
+"@ | Add-Content -Path "$wpRoot\scripts\env.bat"
+
 @"
 {
   "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
+    "Jupyter_PowerShell5.exe",
     "{connection_file}"
   ],
   "display_name": "PowerShell 5",
@@ -269,9 +278,18 @@ if ($InstallPwsh7SDK) {
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
 @"
+set PS7KPATH=%WINPYDIR%\Lib\site-packages\powershellSDK_kernel
+echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%PS7KPATH%\;" >nul
+if %ERRORLEVEL% NEQ 0 (
+    set "PATH=%PATH%;%PS7KPATH%\;"
+)
+
+"@ | Add-Content -Path "$wpRoot\scripts\env.bat"
+
+@"
 {
   "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShellSDK.exe",
+    "Jupyter_PowerShellSDK.exe",
     "{connection_file}"
   ],
   "display_name": "PowerShell 7 (SDK)",
