@@ -190,7 +190,7 @@ else {
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
-    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershell5\')
+    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershell5\') -Force
     if ($CleanupDownloadFiles) {
         Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force
     }
@@ -210,7 +210,7 @@ if ($InstallPwsh7SDK) {
   "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
-    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershellSDK\')
+    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershellSDK\') -Force
     if ($CleanupDownloadFiles) {
         Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force
     }
