@@ -29,18 +29,14 @@ RUN @( `
 USER ContainerAdministrator
 
 RUN pip install jupyter; `
-    pip install jupyterhub; `
-    pip install jupyterlab; `
-    pip install jupyter_nbextensions_configurator; `
-    jupyter nbextensions_configurator enable; `
-    pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master; `
-    jupyter contrib nbextension install;
+    pip install jupyterlab;
 
-RUN dotnet tool install --global Microsoft.dotnet-interactive
-RUN $env:Path += ';C:\Users\ContainerAdministrator\.dotnet\tools'
-RUN dotnet interactive jupyter install
+RUN dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive; `
+    dotnet interactive jupyter install;
 
-RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/v7.2.6.0/Jupyter-PowerShell5.zip' -UseBasicParsing -OutFile 'PowerShell5.zip' -Verbose
+RUN (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url -replace '.*tag/(.*)', '$1' | `
+    ForEach-Object{(Invoke-WebRequest -Uri "https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/expanded_assets/$($_)" -UseBasicParsing).Links.href} | `
+    Select-String -Pattern '.*PowerShell5.zip' | Get-Unique -AsString | ForEach-Object{Invoke-WebRequest -Uri "https://github.com$_" -UseBasicParsing -OutFile 'PowerShell5.zip'}
 RUN Expand-Archive 'PowerShell5.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershell5_kernel')
 RUN New-Item -ItemType Directory -Path (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\share\jupyter\kernels\powershell5')
 RUN Split-Path (python -c 'import sys; print(sys.executable)') -Parent | Foreach-Object { `
@@ -48,7 +44,9 @@ RUN Split-Path (python -c 'import sys; print(sys.executable)') -Parent | Foreach
     Set-Content -Path (Join-Path $_ '\share\jupyter\kernels\powershell5\kernel.json') }
 RUN Remove-Item 'PowerShell5.zip' -Force
 
-RUN Invoke-WebRequest -uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/download/v7.2.6.0/Jupyter-PowerShellSDK-7.2.6.0.zip' -UseBasicParsing -OutFile 'PowerShellSDK.zip' -Verbose
+RUN (Invoke-WebRequest -Uri 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/latest' -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url -replace '.*tag/(.*)', '$1' | `
+    ForEach-Object{(Invoke-WebRequest -Uri "https://github.com/sakaztk/Jupyter-PowerShellSDK/releases/expanded_assets/$($_)" -UseBasicParsing).Links.href} | `
+    Select-String -Pattern '.*PowerShellSDK-.*.zip' | Get-Unique -AsString | ForEach-Object{Invoke-WebRequest -Uri "https://github.com$_" -UseBasicParsing -OutFile 'PowerShellSDK.zip'}
 RUN Expand-Archive 'PowerShellSDK.zip' -DestinationPath (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\Lib\site-packages\powershellSDK_kernel')
 RUN New-Item -ItemType Directory -Path (Join-Path (Split-Path (python -c 'import sys; print(sys.executable)') -Parent) '\share\jupyter\kernels\powershellSDK')
 RUN Split-Path (python -c 'import sys; print(sys.executable)') -Parent | Foreach-Object { `
