@@ -57,7 +57,9 @@ Python for Windowsのバージョンを指定します。
 ## インストール例
 ``` PowerShell
 Set-Location $env:HOMEPATH
-Invoke-WebRequest -UseBasicParsing -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/PythonForWindows/PythonForWindows.ps1 -OutFile .\PythonForWindows.ps1
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/PythonForWindows/PythonForWindows.ps1 `
+    -OutFile .\PythonForWindows.ps1
 Set-ExecutionPolicy Bypass -Scope Process -Force
 .\PythonForWindows.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
 pip install jupyterlab-language-pack-ja-JP
