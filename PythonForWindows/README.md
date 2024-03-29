@@ -1,5 +1,5 @@
 # PythonForWindows
-Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Notebook](https://jupyter.org/) on [Python](https://www.python.org/).
+Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Notebook](https://jupyter.org/) on [Python for Windows](https://www.python.org/).
 
 ## Installing on this script
 - [Python for Windows](https://www.python.org/)
@@ -53,3 +53,11 @@ Specify the working folder in this script.
 Default: $PSScriptRoot (Same folder as this script)  
 Mandatory: No  
 e.g.: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
+
+## Installation Example
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/PythonForWindows/PythonForWindows.ps1 -OutFile .\PythonForWindows.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\PythonForWindows.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+```

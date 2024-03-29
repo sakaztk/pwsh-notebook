@@ -1,5 +1,5 @@
 # PythonForWindows
-[Python](https://www.python.org/)を使用して[Jupyter Notebook](https://jupyter.org/)上で[Powershell](https://github.com/PowerShell/PowerShell)を使用する。  
+[Python for Windows](https://www.python.org/)を使用して[Jupyter Notebook](https://jupyter.org/)上で[Powershell](https://github.com/PowerShell/PowerShell)を使用する。  
 
 ## Installing on this script
 - [Python for Windows](https://www.python.org/)
@@ -53,3 +53,12 @@ Python for Windowsのバージョンを指定します。
 デフォルト: $PSScriptRoot (このスクリプトと同じフォルダ)  
 必須: いいえ  
 例: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
+
+## インストール例
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/PythonForWindows/PythonForWindows.ps1 -OutFile .\PythonForWindows.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\PythonForWindows.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+pip install jupyterlab-language-pack-ja-JP
+```
