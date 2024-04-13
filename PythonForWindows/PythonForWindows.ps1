@@ -2,8 +2,8 @@
 [CmdletBinding()]
 Param(
     [String]$InstallationType = 'Computer',
-    [ValidateSet('3.7','3.8','3.9','3.10','3.11')]
-    [String]$PythonVersion = '3.11',
+    [ValidateSet('3.7','3.8','3.9','3.10','3.11','3.12')]
+    [String]$PythonVersion = '3.12',
     [String]$OverwriteInstallOptionsTo = '',
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallGit,

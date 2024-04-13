@@ -2,8 +2,8 @@
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 Param(
-    [ValidateSet('3.7','3.8','3.9','3.10','3.11')]
-    [String]$WinPythonVersion = '3.11',
+    [ValidateSet('3.7','3.8','3.9','3.10','3.11','3.12')]
+    [String]$WinPythonVersion = '3.12',
     [ValidateSet('unmarked','dot','cod','PyPy','dotPyPy','post1')]
     [String]$WinPythonType = 'dot',
     [Switch]$InstallPwsh7SDK,

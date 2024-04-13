@@ -85,3 +85,14 @@ This switch option will install [Jupyter Nbextensions](https://github.com/ipytho
 - AddStartMenu
 このスイッチオプションを指定すると、WinPythonバイナリをWindowsスタートメニューに追加します。  
 例: .\WinPython.ps1 -AddStartMenu
+
+## インストール例
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/WinPython/WinPython.ps1 `
+    -OutFile .\WinPython.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\WinPython.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -AddStartMenu -Verbose
+pip install jupyterlab-language-pack-ja-JP
+```

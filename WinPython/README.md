@@ -84,3 +84,13 @@ e.g.: .\WinPython.ps1 -WorkingFolder C:\pathto\folder
 - AddStartMenu
 This switch option will add WinPython binaries to Windows start menu.  
 e.g.: .\WinPython.ps1 -AddStartMenu
+
+## Installation Example
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/WinPython/WinPython.ps1 `
+    -OutFile .\WinPython.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\WinPython.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -AddStartMenu -Verbose
+```
