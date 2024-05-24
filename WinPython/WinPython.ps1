@@ -1,5 +1,4 @@
 #Requires -Version 5
-#Requires -RunAsAdministrator
 [CmdletBinding()]
 Param(
     [ValidateSet('3.7','3.8','3.9','3.10','3.11','3.12')]
@@ -9,7 +8,6 @@ Param(
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
-    [Switch]$InstallNIIExtensions,
     [Switch]$InstallPortableGit,
     [Switch]$UsePipKernel,
     [Switch]$InstallPwsh7ForPipKernel,
@@ -25,9 +23,10 @@ $ErrorActionPreference = 'Stop'
 Push-Location $WorkingFolder
 $osBits = ([System.IntPtr]::Size*8).ToString()
 
-if (($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; cmd.exe /c where git 2> $null} -ErrorAction SilentlyContinue)) -and (-not($InstallPortableGit))) {
-    if ($InstallNIIExtensions) {
-        throw 'You need git or InstallPortableGit option for InstallNIIExtensions option.'
+if (-not([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    if ($InstallDotnetInteractive) {
+        Write-Error 'Require admin privileges for installation of .Net Interactive.'
+        exit
     }
 }
 
@@ -59,7 +58,7 @@ Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $Work
 $wpVer = $fileUri -replace ".*-((\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)).*\.exe",'$1'
 
 Write-Verbose 'Downloading Node.js...'
-$releaseURI = 'https://nodejs.org/download/release/latest-v18.x'
+$releaseURI = 'https://nodejs.org/download/release/latest-v21.x'
 $links = (Invoke-WebRequest -uri $releaseURI -UseBasicParsing).Links.href
 $pattern = "win-x$osBits.*\.zip"
 $fileUri = "$releaseURI/" + ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
@@ -140,13 +139,10 @@ Expand-Archive -Path (Join-Path $WorkingFolder '\node.zip') -DestinationPath $No
 $zipFile = [IO.Compression.ZipFile]::OpenRead("$(Join-Path $WorkingFolder '\node.zip')")
 $nodeFolder = $zipFile.Entries[0].FullName -replace('/','')
 $zipFile.Dispose()
-$nodeEnvPath = join-path $nodePath 'Latest'
-New-Item -ItemType SymbolicLink -Path $nodeEnvPath -Target (join-path $nodePath $nodeFolder) -Force
+$nodeEnvPath = join-path $nodePath $nodeFolder
 . (join-path $nodeEnvPath "nodevars.bat")
 $env:Path += (';' + $nodeEnvPath)
-if ($NodePath -eq (Join-Path $WinPythonPath 'node')) {
-    $nodeEnvPath = '%WINPYDIRBASE%\..\node\Latest'
-}
+$nodeEnvPath = '%WINPYDIRBASE%\..\node\' + $nodeFolder
 @"
 set NODEPATH=$nodeEnvPath
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%NODEPATH%\;" >nul
@@ -196,26 +192,6 @@ if ($InstallNBExtensions) {
     jupyter nbextensions_configurator enable
     pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
     jupyter contrib nbextension install --sys-prefix
-}
-if ($InstallNIIExtensions) {
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
-    pip install git+https://github.com/NII-cloud-operation/sidestickies
-    pip install git+https://github.com/NII-cloud-operation/nbsearch
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-    if ($InstallNBExtensions) {
-        jupyter nbextension install --py lc_run_through --sys-prefix
-        jupyter nbextension install --py lc_wrapper --sys-prefix
-        jupyter nbextension install --py lc_multi_outputs --sys-prefix
-        jupyter nbextension install --py notebook_index --sys-prefix
-        jupyter nbextension install --py lc_notebook_diff --sys-prefix
-        jupyter nbextension install --py nbtags --sys-prefix
-        jupyter nbextension install --py nbsearch --sys-prefix
-        jupyter nbextension install --py nblineage --sys-prefix
-    }
 }
 
 if ($UsePipKernel) {
