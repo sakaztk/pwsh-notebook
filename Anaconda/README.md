@@ -10,7 +10,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
 ## Installations
@@ -38,10 +37,6 @@ e.g.: .\Anaconda.ps1 -UsePipKernel -InstallPwsh7ForPipKernel
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 e.g.: .\Anaconda.ps1 -InstallNBExtensions
 
-- InstallNIIExtensions  
-This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).  
-e.g.: .\Anaconda.ps1 -InstallNIIExtensions
-
 - InstallDotnetInteractive  
 This switch option will install [.Net Interactive](https://github.com/dotnet/interactive).  
 e.g.: .\Anaconda.ps1 -InstallDotnetInteractive
@@ -55,3 +50,13 @@ Specify the working folder in this script.
 Mandatory: No  
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Anaconda.ps1 -WorkingFolder C:\pathto\folder
+
+## Installation Example
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/Anaconda/Anaconda.ps1 `
+    -OutFile .\Anaconda.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\Anaconda.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+```
