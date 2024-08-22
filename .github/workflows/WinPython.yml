@@ -1,0 +1,27 @@
+name: WinPython
+on: 
+  push:
+    paths:
+      - "WinPython/WinPython.ps1"
+  workflow_dispatch:
+  
+jobs:
+  installation:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: OS/PowerShell Version
+        run: |
+          [System.Environment]::OSVersion.Version
+          $PSVersionTable
+          whoami
+        shell: powershell
+
+      - name: Install
+        run: |
+          Invoke-WebRequest -UseBasicParsing -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/WinPython/WinPython.ps1 -OutFile .\WinPython.ps1
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          .\WinPython.ps1 -InstallPwsh7SDK -InstallDotnetInteractive -AddStartMenu -Verbose
+        shell: powershell
