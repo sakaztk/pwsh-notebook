@@ -42,3 +42,13 @@ Specify the working folder in this script.
 Mandatory: No  
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Miniconda.ps1 -WorkingFolder C:\pathto\folder
+
+## Installation Example
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/Miniconda/Miniconda.ps1 `
+    -OutFile .\Miniconda.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\Miniconda.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+```
