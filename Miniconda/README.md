@@ -10,7 +10,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
 ## Installations
@@ -29,10 +28,6 @@ e.g.: .\WinPython.ps1 -UsePipKernel
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 e.g.: .\Miniconda.ps1 -InstallNBExtensions
-
-- InstallNIIExtensions  
-This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).  
-e.g.: .\Miniconda.ps1 -InstallNIIExtensions
 
 - InstallDotnetInteractive  
 This switch option will install latest powershell 7 and available it in Jupyter Notebook options.  

@@ -10,7 +10,6 @@
 - [PowerShell 7](https://github.com/PowerShell/PowerShell) (オプション)
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (オプション)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (オプション)
 - [.Net Interactive](https://github.com/dotnet/interactive) (オプション)
 
 ## インストール方法
@@ -31,10 +30,6 @@
 このスイッチオプションを指定すると、 [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) と [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)をインストールします。  
 例: .\Miniconda.ps1 -InstallNBExtensions
 
-- InstallNIIExtensions  
-このスイッチオプションを指定すると、[NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation)をインストールします。  
-例: .\Miniconda.ps1 -InstallNIIExtensions
-
 - InstallDotnetInteractive  
 このスイッチオプションを指定すると、[.Net Interactive](https://github.com/dotnet/interactive)をインストールします。  
 例: .\Miniconda.ps1 -InstallDotnetInteractive
@@ -48,3 +43,14 @@
 必須: いいえ  
 デフォルト: $PSScriptRoot (このスクリプトと同じフォルダ)  
 例: .\Miniconda.ps1 -WorkingFolder C:\pathto\folder
+
+## インストール例
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/Miniconda/Miniconda.ps1 `
+    -OutFile .\Miniconda.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\Miniconda.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+pip install jupyterlab-language-pack-ja-JP
+```
