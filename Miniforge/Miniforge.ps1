@@ -5,7 +5,6 @@ Param(
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
-    [Switch]$InstallNIIExtensions,
     [Switch]$UsePipKernel,
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
@@ -135,27 +134,6 @@ if ($InstallNBExtensions) {
     pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
     jupyter contrib nbextension install $pyTypeOpt    
 }
-if ($InstallNIIExtensions) {
-    conda install -y git
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
-    pip install git+https://github.com/NII-cloud-operation/sidestickies
-    pip install git+https://github.com/NII-cloud-operation/nbsearch
-    pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-    if ($InstallNBExtensions) {
-        jupyter nbextension install --py lc_run_through $pyTypeOpt
-        jupyter nbextension install --py lc_wrapper $pyTypeOpt
-        jupyter nbextension install --py lc_multi_outputs $pyTypeOpt
-        jupyter nbextension install --py notebook_index $pyTypeOpt
-        jupyter nbextension install --py lc_notebook_diff $pyTypeOpt
-        jupyter nbextension install --py nbtags $pyTypeOpt
-        jupyter nbextension install --py nbsearch $pyTypeOpt
-        jupyter nbextension install --py nblineage $pyTypeOpt
-    }
-}
 if ($UsePipKernel) {
     pip install powershell_kernel
     python -m powershell_kernel.install $pyTypeOpt
@@ -193,6 +171,12 @@ else {
         Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force
     }
 }
+Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
+Add-Type -AssemblyName System.Drawing
+$image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
+$bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+[System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+$bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 if ($InstallPwsh7SDK) {
     Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
@@ -212,6 +196,12 @@ if ($InstallPwsh7SDK) {
     if ($CleanupDownloadFiles) {
         Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force
     }
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 }
 
 if ($InstallDotnetInteractive) {

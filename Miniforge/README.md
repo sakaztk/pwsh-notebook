@@ -10,7 +10,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
 ## Installations
@@ -30,10 +29,6 @@ e.g.: .\WinPython.ps1 -UsePipKernel
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 e.g.: .\Miniforge.ps1 -InstallNBExtensions
 
-- InstallNIIExtensions  
-This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation).  
-e.g.: .\Miniforge.ps1 -InstallNIIExtensions
-
 - InstallDotnetInteractive  
 This switch option will install latest powershell 7 and available it in Jupyter Notebook options.  
 e.g.: .\Miniforge.ps1 -InstallDotnetInteractive
@@ -47,3 +42,13 @@ Specify the working folder in this script.
 Mandatory: No  
 Default: $PSScriptRoot (Same folder as this script)  
 e.g.: .\Miniforge.ps1 -WorkingFolder C:\pathto\folder
+
+## Installation Example
+``` PowerShell
+Set-Location $env:HOMEPATH
+Invoke-WebRequest -UseBasicParsing `
+    -Uri https://github.com/sakaztk/pwsh-notebook/raw/master/Miniforge/Miniforge.ps1 `
+    -OutFile .\Miniforge.ps1
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\Miniforge.ps1 -CleanupDownloadFiles -WorkingFolder $env:HOMEPATH -Verbose
+```
