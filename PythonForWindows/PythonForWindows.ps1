@@ -9,7 +9,6 @@ Param(
     [Switch]$InstallGit,
     [Switch]$InstallDotnetInteractive,
     [Switch]$InstallNBExtensions,
-    [Switch]$InstallNIIExtensions,
     [Switch]$UsePipKernel,
     [Switch]$InstallPwsh7ForPipKernel,
     [Switch]$CleanupDownloadFiles,
@@ -19,12 +18,6 @@ $ErrorActionPreference = 'Stop'
 Push-Location $WorkingFolder
 chcp 65001
 $OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
-
-if (($null -eq (Invoke-Command -ScriptBlock {$ErrorActionPreference="silentlycontinue"; git --version} -ErrorAction SilentlyContinue)) -and (-not($InstallGit))) {
-    if ($InstallNIIExtensions) {
-        throw 'You need git command or InstallGit option for InstallNIIExtensions option.'
-    }
-}
 
 $psBoundParameters.Keys | ForEach-Object {
     if ($($PSBoundParameters.$_.GetType().Name) -eq 'SwitchParameter') {
@@ -181,26 +174,6 @@ if ($InstallNBExtensions) {
     python -m pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
     python -m jupyter contrib nbextension install $pyTypeOpt
 }
-if ($InstallNIIExtensions) {
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_run_through
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_wrapper
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-multi_outputs
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_index
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_notebook_diff
-    python -m pip install git+https://github.com/NII-cloud-operation/sidestickies
-    python -m pip install git+https://github.com/NII-cloud-operation/nbsearch
-    python -m pip install git+https://github.com/NII-cloud-operation/Jupyter-LC_nblineage
-    if ($InstallNBExtensions) {
-        python -m jupyter nbextension install --py lc_run_through $pyTypeOpt
-        python -m jupyter nbextension install --py lc_wrapper $pyTypeOpt
-        python -m jupyter nbextension install --py lc_multi_outputs $pyTypeOpt
-        python -m jupyter nbextension install --py notebook_index $pyTypeOpt
-        python -m jupyter nbextension install --py lc_notebook_diff $pyTypeOpt
-        python -m jupyter nbextension install --py nbtags $pyTypeOpt
-        python -m jupyter nbextension install --py nbsearch $pyTypeOpt
-        python -m jupyter nbextension install --py nblineage $pyTypeOpt
-    }
-}
 if ($UsePipKernel) {
     python -m pip install powershell_kernel
     python -m powershell_kernel.install $pyTypeOpt
@@ -226,6 +199,12 @@ else {
     $installPath = Join-Path $packagePath 'powershell5_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
   "argv": [
@@ -246,6 +225,12 @@ if ($InstallPwsh7SDK) {
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
   "argv": [

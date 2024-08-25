@@ -11,7 +11,6 @@
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (オプション)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (オプション)
 - [Git for Windows](https://gitforwindows.org/) (オプション)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (オプション)
 - [.Net Interactive](https://github.com/dotnet/interactive) (オプション)
 
 ## インストール方法
@@ -31,10 +30,6 @@ Python for Windowsのバージョンを指定します。
 - InstallNBExtensions  
 このスイッチオプションを指定すると、 [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) と [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)をインストールします。  
 例: .\WinPython.ps1 -InstallNBExtensions
-
-- InstallNIIExtensions  
-このスイッチオプションを指定すると、[NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation)をインストールします。  
-例: .\WinPython.ps1 -InstallNIIExtensions
 
 - InstallGit  
 このスイッチオプションを指定すると、[Git for Windows](https://gitforwindows.org/)をインストールします。  
