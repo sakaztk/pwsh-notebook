@@ -158,6 +158,12 @@ else {
     $installPath = Join-Path $packagePath 'powershell5_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
   "argv": [
@@ -173,17 +179,17 @@ else {
         Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force
     }
 }
-Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
-Add-Type -AssemblyName System.Drawing
-$image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
-$bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
-[System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
-$bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 if ($InstallPwsh7SDK) {
     Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
   "argv": [
@@ -198,12 +204,6 @@ if ($InstallPwsh7SDK) {
     if ($CleanupDownloadFiles) {
         Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force
     }
-    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
-    Add-Type -AssemblyName System.Drawing
-    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
-    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
-    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
-    $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 }
 
 if ($InstallDotnetInteractive) {
