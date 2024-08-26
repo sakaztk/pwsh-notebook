@@ -11,7 +11,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
 - [PortableGit](https://github.com/git-for-windows/git) (Optional)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
 ## Installations
@@ -52,10 +51,6 @@ e.g.: .\WinPython.ps1 -InstallPwsh7ForPipKernel -PowerShell7Path C:\PathTo\WinPy
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 e.g.: .\WinPython.ps1 -InstallNBExtensions
-
-- InstallNIIExtensions  
-This switch option will install [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation). then requires the git for installation or add "-InstallPortableGit" option.  
-e.g.: .\WinPython.ps1 -InstallNIIExtensions
 
 - InstallPortableGit  
 This switch option will install [PortableGit](https://github.com/git-for-windows/git).  

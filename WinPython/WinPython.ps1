@@ -222,7 +222,12 @@ else {
     $installPath = Join-Path $packagePath 'powershell5_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
-
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 set PS5KPATH=%WINPYDIR%\Lib\site-packages\powershell5_kernel
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%PS5KPATH%\;" >nul
@@ -253,6 +258,12 @@ if ($InstallPwsh7SDK) {
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
     Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
     New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
+    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
+    Add-Type -AssemblyName System.Drawing
+    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
+    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+    $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 set PS7KPATH=%WINPYDIR%\Lib\site-packages\powershellSDK_kernel
 echo ";%PATH%;" | %FINDDIR%\find.exe /C /I ";%PS7KPATH%\;" >nul
@@ -319,6 +330,14 @@ if ($AddStartMenu) {
         $filecontent | Set-Content $_
     }
 }
+
+@'
+@echo off
+pushd %~dp0
+icacls ..\..\ /grant Everyone:F /T /C
+popd
+pause
+'@ | Set-Content -Path "$wpRoot\scripts\sakaztk-everyonefull.bat"
 
 Pop-Location
 Write-Host 'Done, It may require reboot to some function(s).' -ForegroundColor Green

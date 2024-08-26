@@ -11,7 +11,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
 - [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
 - [PortableGit](https://github.com/git-for-windows/git) (Optional)
-- [NII Extensions for Jupyter Notebook](https://github.com/NII-cloud-operation) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
 ## インストール方法
@@ -53,10 +52,6 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
 例: .\WinPython.ps1 -InstallNBExtensions
-
-- InstallNIIExtensions  
-このスイッチオプションを指定すると、 [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) と [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator)をインストールします。  
-例: .\WinPython.ps1 -InstallNIIExtensions
 
 - InstallPortableGit  
 このスイッチオプションを指定すると、 [PortableGit](https://github.com/git-for-windows/git)をインストールします。  
