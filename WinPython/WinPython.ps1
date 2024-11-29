@@ -58,10 +58,10 @@ Invoke-WebRequest -uri "https://github.com$($fileUri)" -OutFile (Join-Path $Work
 $wpVer = $fileUri -replace ".*-((\d+\.)?(\d+\.)?(\d+\.)?(\*|\d+)).*\.exe",'$1'
 
 Write-Verbose 'Downloading Node.js...'
-$releaseURI = 'https://nodejs.org/download/release/latest-v21.x'
+$releaseURI = 'https://nodejs.org/download/release/latest-v22.x'
 $links = (Invoke-WebRequest -uri $releaseURI -UseBasicParsing).Links.href
 $pattern = "win-x$osBits.*\.zip"
-$fileUri = "$releaseURI/" + ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
+$fileUri = 'https://nodejs.org' + ($links | Select-String -Pattern $pattern | Get-Unique).Tostring().Trim()
 Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\node.zip')
 
 if ($InstallPortableGit) {
