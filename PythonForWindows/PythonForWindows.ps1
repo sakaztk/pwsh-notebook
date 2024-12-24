@@ -2,8 +2,8 @@
 [CmdletBinding()]
 Param(
     [String]$InstallationType = 'Computer',
-    [ValidateSet('3.7','3.8','3.9','3.10','3.11','3.12')]
-    [String]$PythonVersion = '3.12',
+    [ValidateSet('3.7','3.8','3.9','3.10','3.11','3.12','3.13')]
+    [String]$PythonVersion = '3.13',
     [String]$OverwriteInstallOptionsTo = '',
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallGit,
@@ -71,9 +71,9 @@ $fileUri = ($targetLinks | Select-String -Pattern ".*python-$latestVer-amd64.exe
 Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'pythoninstaller.exe') -Verbose
 
 Write-Verbose 'Downloading Node.js...'
-$releaseURI = 'https://nodejs.org/download/release/latest-v18.x'
+$releaseURI = 'https://nodejs.org/download/release/latest-v22.x'
 $links = (Invoke-WebRequest -uri $releaseURI -UseBasicParsing).Links.href
-$fileUri = "$releaseURI/" + ($links | Select-String -Pattern "x64\.msi" | Get-Unique).Tostring().Trim()
+$fileUri = 'https://nodejs.org' + ($links | Select-String -Pattern "x64.*\.msi" | Get-Unique).Tostring().Trim()
 Invoke-WebRequest -Uri $fileUri -OutFile (Join-Path $WorkingFolder '\nodeinstaller.msi')
 
 if ($InstallGit) {

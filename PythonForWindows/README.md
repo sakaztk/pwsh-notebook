@@ -20,8 +20,8 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 - PythonVersion  
 Specify version of the [Python for Windows](https://www.python.org/).  
 Mandatory: No  
-Default: 3.11  
-e.g.: .\WinPython.ps1 -PythonVersion 3.10
+Default: 3.13  
+e.g.: .\WinPython.ps1 -PythonVersion 3.12
 
 - UsePipKernel  
 This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
@@ -29,6 +29,7 @@ e.g.: .\WinPython.ps1 -UsePipKernel
 
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
+[Note] It may not work export function for JupyterLab if install NBExtensions.([*](https://github.com/jupyterlab/jupyterlab-desktop/issues/465))  
 e.g.: .\WinPython.ps1 -InstallNBExtensions
 
 - InstallGit  
