@@ -25,8 +25,13 @@ e.g.: .\Miniforge.ps1 -InstallationType User
 This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
 e.g.: .\WinPython.ps1 -UsePipKernel
 
+- InstallPwsh7SDK  
+This switch option will install [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK).  
+e.g.: .\Anaconda.ps1 -InstallPwsh7SDK
+
 - InstallNBExtensions  
 This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
+[Note] It may not work export function for JupyterLab if install NBExtensions.([*](https://github.com/jupyterlab/jupyterlab-desktop/issues/465))  
 e.g.: .\Miniforge.ps1 -InstallNBExtensions
 
 - InstallDotnetInteractive  
