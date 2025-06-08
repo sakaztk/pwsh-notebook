@@ -4,7 +4,7 @@
 ## インストールするソフトウェア
 - [Anaconda](https://www.anaconda.com/)
 - [Node.js](https://nodejs.org/) (JupyterLab拡張機能の要件)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5)
+- [Jupyter-PowerShell5](https://github.com/sakaztk/Jupyter-PowerShellSDK/tree/powershellsdk/Jupyter-PowerShell5) ([DeepAQ](https://github.com/DeepAQ/Jupyter-PowerShell5)からフォーク)
 - [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (オプション)
 - [.Net Interactive](https://github.com/dotnet/interactive) (オプション)
 

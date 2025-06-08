@@ -4,7 +4,7 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 ## Installing Softwares
 - [Anaconda](https://www.anaconda.com/)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5)
+- [Jupyter-PowerShell5](https://github.com/sakaztk/Jupyter-PowerShellSDK/tree/powershellsdk/Jupyter-PowerShell5) (forked from [DeepAQ](https://github.com/DeepAQ/Jupyter-PowerShell5))
 - [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 

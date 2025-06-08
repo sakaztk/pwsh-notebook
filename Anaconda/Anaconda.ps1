@@ -11,7 +11,8 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'
 Push-Location $WorkingFolder
 chcp 65001
-$OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
+#$OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
+$OutputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
 $psBoundParameters.Keys | ForEach-Object {
     if ($($PSBoundParameters.$_.GetType().Name) -eq 'SwitchParameter') {
         $paramStrings += " -$_"

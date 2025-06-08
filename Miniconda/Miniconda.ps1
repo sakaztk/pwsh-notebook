@@ -4,14 +4,15 @@ Param(
     [String]$InstallationType = 'Computer',
     [Switch]$InstallPwsh7SDK,
     [Switch]$InstallDotnetInteractive,
-    [Switch]$InstallNBExtensions,
-    [Switch]$UsePipKernel,
     [Switch]$CleanupDownloadFiles,
     [String]$WorkingFolder = $PSScriptRoot
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'
 Push-Location $WorkingFolder
+chcp 65001
+#$OutputEncoding = [System.Console]::OutputEncoding = [System.Console]::InputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
+$OutputEncoding = [System.Text.Encoding]::GetEncoding('utf-8')
 $psBoundParameters.Keys | ForEach-Object {
     if ($($PSBoundParameters.$_.GetType().Name) -eq 'SwitchParameter') {
         $paramStrings += " -$_"
@@ -32,7 +33,7 @@ switch ($installationType) {
         $dataPath = "$env:ProgramData"
         $kernelPath = Join-Path $env:ProgramData '\Miniconda3\share\jupyter\kernels'
         $packagePath = Join-Path $env:ProgramData '\Miniconda3\Lib\site-packages'
-        $pyTypeOpt = '--sys-prefix'
+        #$pyTypeOpt = '--sys-prefix'
         [System.Environment]::SetEnvironmentVariable('PYTHONUTF8',1,[System.EnvironmentVariableTarget]::Machine)
     }
     { @('user', 'justme') -contains $_ } {
@@ -40,7 +41,7 @@ switch ($installationType) {
         $dataPath = $env:UserProfile
         $kernelPath = Join-Path $env:AppData '\jupyter\kernels'
         $packagePath = Join-Path $env:USERPROFILE '\Miniconda3\Lib\site-packages'
-        $pyTypeOpt = '--user'
+        #$pyTypeOpt = '--user'
         [System.Environment]::SetEnvironmentVariable('PYTHONUTF8',1,[System.EnvironmentVariableTarget]::User)
     }
     default {
@@ -54,50 +55,37 @@ if ($ProgressPreference -ne 'SilentlyContinue') {
     $ProgressPreference = 'SilentlyContinue'
 }
 
-Write-Verbose 'Downloading latest Miniconda...'
+Write-Host 'Downloading latest Miniconda...'
 $fileUri = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe'
-Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'miniconda.exe') -Verbose
-
-if ($InstallPwsh7ForPipKernel) {
-    Write-Verbose 'Downloading latest PowerShell 7...'
-    $releaseURI = 'https://github.com/PowerShell/PowerShell/releases'
-    $latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $versionString = $latestRelease -replace '.*tag/(.*)', '$1'
-    $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
-    $fileUri = 'https://github.com' + ($links | Select-String -Pattern '.*x64.msi' | Get-Unique).Tostring().Trim()
-    Write-Verbose "Download from $fileUri"
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'pwsh.msi') -Verbose
-}
+Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'miniconda.exe') -Verbose:$VerbosePreference
 
 if ($InstallDotnetInteractive) {
-    Write-Verbose 'Downloading latest .NET SDK...'
+    Write-Host 'Downloading latest .NET SDK...'
     $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/download' -UseBasicParsing).Links.href
     $latestVer = (($links | Select-String -Pattern '.*sdk.*windows-x64-installer') -replace '.*sdk-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*sdk-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose:$VerbosePreference
 }
 else {
-    Write-Verbose 'Downloading latest .NET Runtime...'
+    Write-Host 'Downloading latest .NET Runtime...'
     $links = (Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/en-us/download/dotnet/8.0/runtime' -UseBasicParsing).Links.href
     $latestVer = (($links | Select-String -Pattern '.*runtime.*windows-x64-installer') -replace '.*runtime-(([0-9]+\.){1}[0-9]+(\.[0-9]+)?)-.*', '$1' | Measure-Object -Maximum).Maximum
     $latestUri = 'https://dotnet.microsoft.com' + ($links | Select-String -Pattern ".*runtime-$latestVer-windows-x64-installer" | Get-Unique).Tostring().Trim()
     $fileUri = ((Invoke-WebRequest -Uri $latestUri -UseBasicParsing).Links.href | Select-String -Pattern '.*\.exe' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose
+    Invoke-WebRequest -Uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'dotnet.exe') -Verbose:$VerbosePreference
 }
 
-if (-not($UsePipKernel)) {
-    $releaseURI = 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases'
-    $latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
-    $versionString = $latestRelease -replace '.*tag/(.*)', '$1'
-    $links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
-    Write-Verbose 'Downloading latest DeepAQ pwsh5 Kernel...'
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*PowerShell5.zip' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose
-    Write-Verbose 'Downloading latest DeepAQ pwshSDK Kernel...'
-    $fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
-    Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose
-}
+$releaseURI = 'https://github.com/sakaztk/Jupyter-PowerShellSDK/releases'
+$latestRelease = (Invoke-WebRequest -Uri "$releaseURI/latest" -UseBasicParsing -Headers @{'Accept'='application/json'}| ConvertFrom-Json).update_url
+$versionString = $latestRelease -replace '.*tag/(.*)', '$1'
+$links = (Invoke-WebRequest -Uri "$releaseURI/expanded_assets/$($versionString)" -UseBasicParsing).Links.href
+Write-Host 'Downloading latest DeepAQ pwsh5 Kernel...'
+$fileUri = 'https://github.com' + ( $links | Select-String -Pattern '.*PowerShell5.zip' | Get-Unique).Tostring().Trim()
+Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShell5.zip') -Verbose:$VerbosePreference
+Write-Host 'Downloading latest DeepAQ pwshSDK Kernel...'
+$fileUri = 'https://github.com' + ( $links | Select-String -Pattern 'Jupyter-PowerShellSDK-7.*\.zip' | Get-Unique).Tostring().Trim()
+Invoke-WebRequest -uri $fileUri -UseBasicParsing -OutFile (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Verbose:$VerbosePreference
 
 if ($null -ne $exProgressPreference) {
     Write-Verbose "Restore $ProgressPreference to $exProgressPreference"
@@ -128,61 +116,37 @@ conda install -y notebook
 conda install -y jupyterlab
 conda install -y -c conda-forge nodejs
 
-if ($InstallNBExtensions) {
-    conda install -y -c conda-forge jupyter_nbextensions_configurator
-    jupyter nbextensions_configurator enable
-    pip install https://github.com/ipython-contrib/jupyter_contrib_nbextensions/tarball/master
-    jupyter contrib nbextension install $pyTypeOpt    
-}
-if ($UsePipKernel) {
-    pip install powershell_kernel
-    python -m powershell_kernel.install $pyTypeOpt
-    if ($InstallPwsh7ForPipKernel) {
-        Write-Verbose 'Installing PowerShell 7...'
-        Start-Process -FilePath 'pwsh.msi' -ArgumentList '/passive' -Wait
-        Copy-Item -Path "$kernelPath\powershell" -Destination "$kernelPath\powershell7" -Recurse -Force
-        $fileContent = Get-Content "$kernelPath\powershell7\kernel.json" -Raw
-        $fileContent = $filecontent -replace '"display_name": "[^"]*"','"display_name": "PowerShell 7"'
-        $fileContent = $filecontent -replace '"powershell_command": "[^"]*"',"`"powershell_command`": `"pwsh.exe`""
-        $filecontent | Set-Content "$kernelPath\powershell7\kernel.json"
-        if ($CleanupDownloadFiles) {
-            Start-Sleep -Seconds 5
-            Remove-Item 'pwsh.msi' -Force
-        }
-    }
-}
-else {
-    Write-Verbose 'Installing DeepAQ pwsh5 Kernel...'
-    $installPath = Join-Path $packagePath 'powershell5_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
-    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
-    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
-    Add-Type -AssemblyName System.Drawing
-    $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
-    $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
-    [System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
-    $bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+Write-Verbose 'Installing DeepAQ pwsh5 Kernel...'
+$installPath = Join-Path $packagePath 'powershell5_kernel'
+Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShell5.zip') -DestinationPath $installPath -Force
+New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershell5\') -Force
+Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_64.png' -OutFile (Join-Path $kernelPath '\powershell5\logo-64x64.png')
+Add-Type -AssemblyName System.Drawing
+$image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershell5\logo-64x64.png'))
+$bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
+[System.Drawing.Graphics]::FromImage($bitmap32).DrawImage($image, 0, 0, 32, 32)
+$bitmap32.Save((Join-Path $kernelPath '\powershell5\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
-  "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
-    "{connection_file}"
-  ],
-  "display_name": "PowerShell 5",
-  "language": "Powershell"
+    "argv": [
+        "$($installPath.replace('\','/'))/Jupyter_PowerShell5.exe",
+        "{connection_file}"
+    ],
+    "display_name": "PowerShell 5",
+    "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershell5\kernel.json')
-    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershell5\') -Force
-    if ($CleanupDownloadFiles) {
-        Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force
-    }
+Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershell5\') -Force -Verbose:$VerbosePreference
+if ($CleanupDownloadFiles) {
+    Remove-Item (Join-Path $WorkingFolder 'PowerShell5.zip') -Force -Verbose:$VerbosePreference
 }
+
 if ($InstallPwsh7SDK) {
     Write-Verbose 'Installing DeepAQ pwshSDK Kernel...'
     $installPath = Join-Path $packagePath 'powershellSDK_kernel'
-    Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force
-    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force
-    Invoke-WebRequest -UseBasicParsing -Verbose -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png')
+    Expand-Archive -Path (Join-Path $WorkingFolder 'PowerShellSDK.zip') -DestinationPath $installPath -Force -Verbose:$VerbosePreference
+    New-Item -ItemType Directory -Path (Join-Path $kernelPath '\powershellSDK\') -Force -Verbose:$VerbosePreference
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/assets/Powershell_black_64.png' -OutFile (Join-Path $kernelPath '\powershellSDK\logo-64x64.png') -Verbose:$VerbosePreference
     Add-Type -AssemblyName System.Drawing
     $image = [System.Drawing.Image]::FromFile((Join-Path $kernelPath '\powershellSDK\logo-64x64.png'))
     $bitmap32 = New-Object System.Drawing.Bitmap(32, 32)
@@ -190,17 +154,17 @@ if ($InstallPwsh7SDK) {
     $bitmap32.Save((Join-Path $kernelPath '\powershellSDK\logo-32x32.png'), [System.Drawing.Imaging.ImageFormat]::Png)
 @"
 {
-  "argv": [
-    "$($installPath.replace('\','/'))/Jupyter_PowerShellSDK.exe",
-    "{connection_file}"
-  ],
-  "display_name": "PowerShell 7 (SDK)",
-  "language": "Powershell"
+    "argv": [
+        "$($installPath.replace('\','/'))/Jupyter_PowerShellSDK.exe",
+        "{connection_file}"
+    ],
+    "display_name": "PowerShell 7 (SDK)",
+    "language": "Powershell"
 }
 "@ | Set-Content -Path (Join-Path $kernelPath '\powershellSDK\kernel.json')
-    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershellSDK\') -Force
+    Move-Item -Path (Join-Path $installPath '*.png') -Destination (Join-Path $kernelPath '\powershellSDK\') -Force -Verbose:$VerbosePreference
     if ($CleanupDownloadFiles) {
-        Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force
+        Remove-Item (Join-Path $WorkingFolder 'PowerShellSDK.zip') -Force -Verbose:$VerbosePreference
     }
 }
 
@@ -213,7 +177,7 @@ if ($InstallDotnetInteractive) {
     dotnet interactive jupyter install --path "$kernelPath"
     if ($CleanupDownloadFiles) {
         Start-Sleep -Seconds 5
-        Remove-Item 'dotnet.exe' -Force
+        Remove-Item 'dotnet.exe' -Force -Verbose:$VerbosePreference
     }
 }
 elseif ($InstallPwsh7SDK) {
@@ -221,7 +185,7 @@ elseif ($InstallPwsh7SDK) {
     Start-Process -FilePath (Join-Path $WorkingFolder 'dotnet.exe') -ArgumentList '/install /passive /norestart' -Wait
     if ($CleanupDownloadFiles) {
         Start-Sleep -Seconds 5
-        Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force
+        Remove-Item (Join-Path $WorkingFolder 'dotnet.exe') -Force -Verbose:$VerbosePreference
     }
 }
 
