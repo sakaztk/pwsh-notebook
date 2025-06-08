@@ -4,7 +4,7 @@
 ## インストールするソフトウェア
 - [Miniforge](https://github.com/conda-forge/miniforge)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5)
+- [Jupyter-PowerShell5](https://github.com/sakaztk/Jupyter-PowerShellSDK/tree/powershellsdk/Jupyter-PowerShell5) ([DeepAQ](https://github.com/DeepAQ/Jupyter-PowerShell5)からフォーク)
 - [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (オプション)
 - [.Net Interactive](https://github.com/dotnet/interactive) (オプション)
 
