@@ -3,13 +3,9 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 
 ## Installing
 - [WinPython](https://winpython.github.io/)
-- [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5)
-- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
-- [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) (Optional)
 - [Node.js](https://nodejs.org/) (Use in extentions for JupyterLab)
-- [PowerShell 7](https://github.com/PowerShell/PowerShell) (Optional)
-- [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) (Optional)
-- [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator) (Optional)
+- [Jupyter-PowerShell5](https://github.com/sakaztk/Jupyter-PowerShellSDK/tree/powershellsdk/Jupyter-PowerShell5) (forked from [DeepAQ](https://github.com/DeepAQ/Jupyter-PowerShell5))
+- [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK) (Optional)
 - [PortableGit](https://github.com/git-for-windows/git) (Optional)
 - [.Net Interactive](https://github.com/dotnet/interactive) (Optional)
 
@@ -34,28 +30,9 @@ Mandatory: No
 Default: $env:LOCALAPPDATA\Programs\WinPython  
 e.g.: .\WinPython.ps1 -WinPythonPath C:\PathTo\WinPython
 
-- UsePipKernel  
-This switch option will install [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell) instead of [Jupyter-PowerShell5](https://github.com/DeepAQ/Jupyter-PowerShell5).  
-e.g.: .\WinPython.ps1 -UsePipKernel
-
-- InstallPwsh7ForPipKernel  
-This switch option will install [latest PowerShell 7](https://github.com/PowerShell/PowerShell/releases/latest) and available it in Jupyter Notebook options with [Jupyter Powershell Kernel](https://github.com/vors/jupyter-powershell).  
-e.g.: .\WinPython.ps1 -UsePipKernel -InstallPwsh7ForPipKernel
-
-- PowerShell7Path  
-Specify installation path of the [PowerShell 7](https://github.com/PowerShell/PowerShell).  
-Mandatory: No  
-Default: $env:LOCALAPPDATA\Programs\WinPython\pwsh7  
-e.g.: .\WinPython.ps1 -InstallPwsh7ForPipKernel -PowerShell7Path C:\PathTo\WinPython
-
 - InstallPwsh7SDK  
 This switch option will install [Jupyter-PowerShellSDK](https://github.com/sakaztk/Jupyter-PowerShellSDK).  
 e.g.: .\Anaconda.ps1 -InstallPwsh7SDK
-
-- InstallNBExtensions  
-This switch option will install [Jupyter Nbextensions](https://github.com/ipython-contrib/jupyter_contrib_nbextensions) and [Jupyter Nbextensions Configurator](https://github.com/Jupyter-contrib/jupyter_nbextensions_configurator).  
-[Note] It may not work export function for JupyterLab if install NBExtensions.([*](https://github.com/jupyterlab/jupyterlab-desktop/issues/465))  
-e.g.: .\WinPython.ps1 -InstallNBExtensions
 
 - InstallPortableGit  
 This switch option will install [PortableGit](https://github.com/git-for-windows/git).  
