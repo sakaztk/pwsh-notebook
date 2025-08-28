@@ -10,3 +10,4 @@ Using [Powershell](https://github.com/PowerShell/PowerShell) on [Jupyter Noteboo
 * [Python for Windows](./PythonForWindows/)
 * [WinPython](./WinPython/)
 * [Docker](./Docker/)
+* [individually](./Tools/) (if JupyterLab is already installed.)
